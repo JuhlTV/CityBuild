@@ -178,6 +178,9 @@ public class CityBuildCommand implements CommandExecutor {
             return true;
         }
         
+        // Create/update plot frame before teleporting
+        plots.createPlotFrame(uuid);
+        
         Location plotLocation = plots.getFirstPlotLocation(uuid);
         player.teleport(plotLocation);
         

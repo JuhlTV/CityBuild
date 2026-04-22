@@ -10,6 +10,7 @@ import com.citybuild.managers.BankManager;
 import com.citybuild.managers.DailyRewardManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
+import com.citybuild.listeners.MobSpawnListener;
 
 public class CityBuildPlugin extends JavaPlugin {
 
@@ -50,6 +51,7 @@ public class CityBuildPlugin extends JavaPlugin {
         
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new MobSpawnListener(worldManager.getPlotWorld()), this);
         
         getLogger().info("✓ CityBuild Plugin enabled v2.0.0");
         getLogger().info("✓ Running on Paper 1.21.1");

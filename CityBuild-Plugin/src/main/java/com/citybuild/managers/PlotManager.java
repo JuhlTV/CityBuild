@@ -6,13 +6,21 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Directional;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 public class PlotManager {
     private final JavaPlugin plugin;
@@ -159,6 +167,132 @@ public class PlotManager {
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to save plot data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Create a 24x24 frame of stairs around a plot (16x16 plot size)
+     * Stairs are placed at Y=65 (same as plot spawn level)
+     */
+    public void createPlotFrame(String playerUuid) {
+        List<Integer> playerPlotList = getPlayerPlots(playerUuid);
+        if (playerPlotList.isEmpty()) {
+            return;
+        }
+        
+        int plotId = playerPlotList.get(0); // Get first plot
+        Location plotCenter = getPlotSpawn(plotId);
+        
+        int centerX = plotCenter.getBlockX();
+        int centerZ = plotCenter.getBlockZ();
+        int y = 65;
+        
+        // Calculate plot boundaries (center is at +8, +8, so actual plot is from center-8 to center+8)
+        int plotStartX = centerX - 8;
+        int plotEndX = centerX + 8;
+        int plotStartZ = centerZ - 8;
+        int plotEndZ = centerZ + 8;
+        
+        // Frame goes from -1 to +1 around the plot
+        int frameStartX = plotStartX - 1;
+        int frameEndX = plotEndX + 1;
+        int frameStartZ = plotStartZ - 1;
+        int frameEndZ = plotEndZ + 1;
+        
+        // Clear old frame if exists
+        clearPlotFrame(frameStartX, frameEndX, frameStartZ, frameEndZ, y);
+        
+        // Create north wall (z = frameStartZ)
+        for (int x = frameStartX; x <= frameEndX; x++) {
+            Block block = plotWorld.getBlockAt(x, y, frameStartZ);
+            block.setType(Material.DARK_OAK_STAIRS);
+            if (block.getBlockData() instanceof Directional directional) {
+                directional.setFacing(BlockFace.SOUTH);
+                block.setBlockData(directional);
+            }
+        }
+        
+        // Create south wall (z = frameEndZ)
+        for (int x = frameStartX; x <= frameEndX; x++) {
+            Block block = plotWorld.getBlockAt(x, y, frameEndZ);
+            block.setType(Material.DARK_OAK_STAIRS);
+            if (block.getBlockData() instanceof Directional directional) {
+                directional.setFacing(BlockFace.NORTH);
+                block.setBlockData(directional);
+            }
+        }
+        
+        // Create west wall (x = frameStartX)
+        for (int z = frameStartZ + 1; z < frameEndZ; z++) {
+            Block block = plotWorld.getBlockAt(frameStartX, y, z);
+            block.setType(Material.DARK_OAK_STAIRS);
+            if (block.getBlockData() instanceof Directional directional) {
+                directional.setFacing(BlockFace.EAST);
+                block.setBlockData(directional);
+            }
+        }
+        
+        // Create east wall (x = frameEndX)
+        for (int z = frameStartZ + 1; z < frameEndZ; z++) {
+            Block block = plotWorld.getBlockAt(frameEndX, y, z);
+            block.setType(Material.DARK_OAK_STAIRS);
+            if (block.getBlockData() instanceof Directional directional) {
+                directional.setFacing(BlockFace.WEST);
+                block.setBlockData(directional);
+            }
+        }
+        
+        // Place owner sign on north wall
+        placeOwnerSign(playerUuid, plotStartX, y, frameStartZ);
+    }
+
+    /**
+     * Place a sign on the plot frame with the owner's name
+     */
+    private void placeOwnerSign(String playerUuid, int x, int y, int z) {
+        try {
+            // Get player name from UUID (cached by Bukkit)
+            org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(java.util.UUID.fromString(playerUuid));
+            String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : playerUuid.substring(0, 8);
+            
+            Block signBlock = plotWorld.getBlockAt(x, y + 1, z);
+            signBlock.setType(Material.OAK_WALL_SIGN);
+            
+            Sign sign = (Sign) signBlock.getState();
+            sign.line(0, Component.text("=== PLOT ===" , NamedTextColor.DARK_GREEN));
+            sign.line(1, Component.text("Owner:", NamedTextColor.GREEN));
+            sign.line(2, Component.text(playerName, NamedTextColor.AQUA));
+            sign.line(3, Component.text("ID: " + getPlayerPlots(playerUuid).get(0), NamedTextColor.GRAY));
+            sign.update();
+            
+            // Set wall sign direction (facing outward from plot)
+            if (signBlock.getBlockData() instanceof Directional directional) {
+                directional.setFacing(BlockFace.SOUTH);
+                signBlock.setBlockData(directional);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to place owner sign: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Clear the old plot frame
+     */
+    private void clearPlotFrame(int startX, int endX, int startZ, int endZ, int y) {
+        for (int x = startX; x <= endX; x++) {
+            for (int z = startZ; z <= endZ; z++) {
+                Block block = plotWorld.getBlockAt(x, y, z);
+                if (block.getType().toString().contains("STAIRS") || 
+                    block.getType().toString().contains("SIGN")) {
+                    block.setType(Material.AIR);
+                }
+                
+                // Clear sign above frame
+                Block signBlock = plotWorld.getBlockAt(x, y + 1, z);
+                if (signBlock.getType().toString().contains("SIGN")) {
+                    signBlock.setType(Material.AIR);
+                }
+            }
         }
     }
 }
