@@ -17,8 +17,10 @@ import com.citybuild.managers.EnchantingManager;
 import com.citybuild.managers.TradingManager;
 import com.citybuild.managers.PlaytimeManager;
 import com.citybuild.managers.EventManager;
+import com.citybuild.managers.AdminManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
+import com.citybuild.listeners.AdminListener;
 import com.citybuild.listeners.MobSpawnListener;
 import com.citybuild.listeners.InventoryClickListener;
 import com.citybuild.listeners.PlotProtectionListener;
@@ -44,6 +46,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private TradingManager tradingManager;
     private PlaytimeManager playtimeManager;
     private EventManager eventManager;
+    private AdminManager adminManager;
 
     @Override
     public void onEnable() {
@@ -84,6 +87,9 @@ public class CityBuildPlugin extends JavaPlugin {
         this.playtimeManager = new PlaytimeManager(this, economyManager);
         this.eventManager = new EventManager(this, economyManager);
         
+        // Initialize admin system
+        this.adminManager = new AdminManager(this);
+        
         // Initialize GUI Manager
         this.guiManager = new GUIManager(this);
         
@@ -96,8 +102,9 @@ public class CityBuildPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
         getServer().getPluginManager().registerEvents(new PlotProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new RewardListener(this), this);
+        getServer().getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
         
-        getLogger().info("✓ CityBuild Plugin enabled v2.1.0 - MEGA EDITION");
+        getLogger().info("✓ CityBuild Plugin enabled v2.2.0 - MEGA EDITION + ADMIN SYSTEM");
         getLogger().info("✓ Running on Paper 1.21.1");
         getLogger().info("✓ 11 Managers Active: Economy, Plot, World, Shop, Bank, Daily, Auction, Achievement, Clan, Warp, Quest, Enchanting, Trading, Playtime, Events");
         getLogger().info("✓ All 9 Expansion Features Available!");
@@ -138,7 +145,10 @@ public class CityBuildPlugin extends JavaPlugin {
         if (playtimeManager != null) {
             playtimeManager.saveData();
         }
-        getLogger().info("✓ CityBuild Plugin v2.1.0 disabled - All 11 managers saved");
+        if (adminManager != null) {
+            adminManager.saveData();
+        }
+        getLogger().info("✓ CityBuild Plugin v2.2.0 disabled - All managers saved");
     }
 
     public static CityBuildPlugin getInstance() {
@@ -207,5 +217,9 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public AdminManager getAdminManager() {
+        return adminManager;
     }
 }

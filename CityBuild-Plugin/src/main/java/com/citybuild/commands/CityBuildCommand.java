@@ -104,12 +104,7 @@ public class CityBuildCommand implements CommandExecutor {
                 sendHelp(player);
                 return true;
             case "admin":
-                if (player.isOp()) {
-                    return handleAdmin(player, args);
-                } else {
-                    player.sendMessage(Component.text("You don't have permission!").color(NamedTextColor.RED));
-                }
-                return true;
+                return handleAdmin(player, args);
             default:
                 sendHelp(player);
                 return true;
@@ -825,5 +820,11 @@ public class CityBuildCommand implements CommandExecutor {
         player.sendMessage(Component.text("/citybuild menu - Open main menu", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild help - Show this message", NamedTextColor.YELLOW));
     }
+
+    private boolean handleAdmin(Player player, String[] args) {
+        AdminCommandHandler adminHandler = new AdminCommandHandler(plugin);
+        return adminHandler.handleAdminCommand(player, args);
+    }
 }
+
 

@@ -23,6 +23,7 @@ public class InventoryClickListener implements Listener {
     private final QuestManager quests;
     private final EnchantingManager enchanting;
     private final TradingManager trading;
+    private final AdminManager admin;
 
     public InventoryClickListener(CityBuildPlugin plugin) {
         this.plugin = plugin;
@@ -35,6 +36,7 @@ public class InventoryClickListener implements Listener {
         this.quests = plugin.getQuestManager();
         this.enchanting = plugin.getEnchantingManager();
         this.trading = plugin.getTradingManager();
+        this.admin = plugin.getAdminManager();
     }
 
     @EventHandler
@@ -77,6 +79,8 @@ public class InventoryClickListener implements Listener {
                 handleBankClick(player, clicked);
             } else if (title.contains("🏆 TOP 10")) {
                 handleLeaderboardClick(player, clicked);
+            } else if (title.contains("🔴 ADMIN PANEL")) {
+                handleAdminPanelClick(player, clicked);
             }
         }
     }
@@ -85,7 +89,7 @@ public class InventoryClickListener implements Listener {
         return title.contains("CityBuild") || title.contains("SHOP") || title.contains("ACHIEVEMENTS") ||
                title.contains("CLANS") || title.contains("WARPS") || title.contains("QUESTS") ||
                title.contains("ENCHANTING") || title.contains("TRADING") || title.contains("STATS") ||
-               title.contains("BANK") || title.contains("TOP 10");
+               title.contains("BANK") || title.contains("TOP 10") || title.contains("ADMIN PANEL");
     }
 
     private void handleMainMenuClick(Player player, ItemStack clicked) {
@@ -340,5 +344,19 @@ public class InventoryClickListener implements Listener {
         player.sendMessage(Component.text("/citybuild clan create <name>", NamedTextColor.AQUA).append(Component.text(" - Create clan", NamedTextColor.GRAY)));
         player.sendMessage(Component.text("/citybuild setwarp <name>", NamedTextColor.AQUA).append(Component.text(" - Create warp", NamedTextColor.GRAY)));
         player.sendMessage(Component.text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", NamedTextColor.DARK_GREEN));
+    }
+
+    private void handleAdminPanelClick(Player player, ItemStack clicked) {
+        if (clicked.getItemMeta() == null) return;
+        String displayName = clicked.getItemMeta().getDisplayName();
+
+        if (displayName.contains("BACK")) {
+            guiManager.openMainMenu(player);
+        } else if (displayName.contains("Role Management") || displayName.contains("Admin List") ||
+                   displayName.contains("Warn") || displayName.contains("Mute") || displayName.contains("Unmute") ||
+                   displayName.contains("Kick") || displayName.contains("Logs") || displayName.contains("My Actions")) {
+            // These are for command-based operations, open help or execute command
+            player.sendMessage(Component.text("Use /citybuild admin help for available commands", NamedTextColor.YELLOW));
+        }
     }
 }
