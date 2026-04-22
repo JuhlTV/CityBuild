@@ -1,12 +1,7 @@
 package com.citybuild.commands;
 
 import com.citybuild.CityBuildPlugin;
-import com.citybuild.managers.EconomyManager;
-import com.citybuild.managers.PlotManager;
-import com.citybuild.managers.WorldManager;
-import com.citybuild.managers.ShopManager;
-import com.citybuild.managers.BankManager;
-import com.citybuild.managers.DailyRewardManager;
+import com.citybuild.managers.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -50,6 +45,30 @@ public class CityBuildCommand implements CommandExecutor {
         switch (args[0].toLowerCase()) {
             case "menu":
                 plugin.getGUIManager().openMainMenu(player);
+                return true;
+            case "achievements":
+                plugin.getGUIManager().openAchievementsMenu(player);
+                return true;
+            case "clan":
+                return handleClan(player, args);
+            case "warp":
+                return handleWarp(player, args);
+            case "setwarp":
+                return handleSetWarp(player, args);
+            case "delwarp":
+                return handleDelWarp(player, args);
+            case "warps":
+                plugin.getGUIManager().openWarpsMenu(player);
+                return true;
+            case "quest":
+            case "quests":
+                plugin.getGUIManager().openQuestsMenu(player);
+                return true;
+            case "enchant":
+                plugin.getGUIManager().openEnchantingMenu(player);
+                return true;
+            case "trade":
+                plugin.getGUIManager().openTradingMenu(player);
                 return true;
             case "buy":
                 return handleBuy(player);
@@ -623,8 +642,151 @@ public class CityBuildCommand implements CommandExecutor {
         return true;
     }
 
+    private boolean handleClan(Player player, String[] args) {
+        ClanManager clanManager = plugin.getClanManager();
+        String uuid = player.getUniqueId().toString();
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: /citybuild clan <create|invite|leave|info|balance|transfer|level>", NamedTextColor.RED));
+            return true;
+        }
+
+        switch (args[1].toLowerCase()) {
+            case "create":
+                if (args.length < 3) {
+                    player.sendMessage(Component.text("Usage: /citybuild clan create <name>", NamedTextColor.RED));
+                    return true;
+                }
+                
+                if (clanManager.getPlayerClan(uuid) != null) {
+                    player.sendMessage(Component.text("❌ You're already in a clan!", NamedTextColor.RED));
+                    return true;
+                }
+                
+                String clanName = args[2];
+                if (clanManager.createClan(clanName, uuid)) {
+                    player.sendMessage(Component.text("✓ Clan '" + clanName + "' created!", NamedTextColor.GREEN));
+                } else {
+                    player.sendMessage(Component.text("❌ Clan name already exists!", NamedTextColor.RED));
+                }
+                return true;
+
+            case "info":
+                ClanManager.Clan clan = clanManager.getPlayerClan(uuid);
+                if (clan == null) {
+                    player.sendMessage(Component.text("❌ You're not in a clan!", NamedTextColor.RED));
+                    return true;
+                }
+                
+                player.sendMessage(Component.text("=== Clan Info ===", NamedTextColor.GOLD));
+                player.sendMessage(Component.text("Name: " + clan.name, NamedTextColor.YELLOW));
+                player.sendMessage(Component.text("Members: " + clan.members.size(), NamedTextColor.YELLOW));
+                player.sendMessage(Component.text("Balance: $" + clan.balance, NamedTextColor.YELLOW));
+                player.sendMessage(Component.text("Level: " + clan.level, NamedTextColor.YELLOW));
+                return true;
+
+            case "leave":
+                clan = clanManager.getPlayerClan(uuid);
+                if (clan == null) {
+                    player.sendMessage(Component.text("❌ You're not in a clan!", NamedTextColor.RED));
+                    return true;
+                }
+                
+                clanManager.removeMember(clan.name, uuid);
+                player.sendMessage(Component.text("✓ You left the clan!", NamedTextColor.GREEN));
+                return true;
+
+            default:
+                player.sendMessage(Component.text("Unknown subcommand!", NamedTextColor.RED));
+                return true;
+        }
+    }
+
+    private boolean handleSetWarp(Player player, String[] args) {
+        WarpManager warpManager = plugin.getWarpManager();
+        String uuid = player.getUniqueId().toString();
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: /citybuild setwarp <name>", NamedTextColor.RED));
+            return true;
+        }
+
+        String warpName = args[1];
+        if (warpManager.createWarp(warpName, uuid, player.getLocation())) {
+            player.sendMessage(Component.text("✓ Warp '" + warpName + "' created!", NamedTextColor.GREEN));
+        } else {
+            player.sendMessage(Component.text("❌ Warp name already exists!", NamedTextColor.RED));
+        }
+        return true;
+    }
+
+    private boolean handleWarp(Player player, String[] args) {
+        WarpManager warpManager = plugin.getWarpManager();
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: /citybuild warp <name>", NamedTextColor.RED));
+            return true;
+        }
+
+        String warpName = args[1];
+        WarpManager.Warp warp = warpManager.getWarp(warpName);
+
+        if (warp == null) {
+            player.sendMessage(Component.text("❌ Warp not found!", NamedTextColor.RED));
+            return true;
+        }
+
+        org.bukkit.World world = org.bukkit.Bukkit.getWorld(warp.world);
+        if (world == null) {
+            player.sendMessage(Component.text("❌ Warp world doesn't exist!", NamedTextColor.RED));
+            return true;
+        }
+
+        // Check cooldown
+        if (isTeleportOnCooldown(player)) {
+            player.sendMessage(Component.text("⏱️ Wait before teleporting again!", NamedTextColor.YELLOW));
+            return true;
+        }
+
+        player.teleport(warp.toLocation(world));
+        setTeleportCooldown(player);
+        player.sendMessage(Component.text("✓ Warped to '" + warpName + "'!", NamedTextColor.GREEN));
+        grantInvincibility(player, 5);
+        return true;
+    }
+
+    private boolean handleDelWarp(Player player, String[] args) {
+        WarpManager warpManager = plugin.getWarpManager();
+        String uuid = player.getUniqueId().toString();
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: /citybuild delwarp <name>", NamedTextColor.RED));
+            return true;
+        }
+
+        String warpName = args[1];
+        WarpManager.Warp warp = warpManager.getWarp(warpName);
+
+        if (warp == null) {
+            player.sendMessage(Component.text("❌ Warp not found!", NamedTextColor.RED));
+            return true;
+        }
+
+        if (!warp.creator.equals(uuid)) {
+            player.sendMessage(Component.text("❌ You don't own this warp!", NamedTextColor.RED));
+            return true;
+        }
+
+        if (warpManager.deleteWarp(warpName)) {
+            player.sendMessage(Component.text("✓ Warp deleted!", NamedTextColor.GREEN));
+        } else {
+            player.sendMessage(Component.text("❌ Failed to delete warp!", NamedTextColor.RED));
+        }
+        return true;
+    }
+
     private void sendHelp(Player player) {
-        player.sendMessage(Component.text("=== CityBuild Commands ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
+        player.sendMessage(Component.text("=== CityBuild v2.1.0 Commands ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
         player.sendMessage(Component.text("--- Economy ---", NamedTextColor.AQUA));
         player.sendMessage(Component.text("/citybuild balance - Check balance", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild pay <player> <amount> - Send money", NamedTextColor.YELLOW));
@@ -637,6 +799,15 @@ public class CityBuildCommand implements CommandExecutor {
         player.sendMessage(Component.text("/citybuild addmember <player> - Add member to plot", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild removemember <player> - Remove member", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild members - List plot members", NamedTextColor.YELLOW));
+        
+        player.sendMessage(Component.text("--- Expansion Features ---", NamedTextColor.AQUA));
+        player.sendMessage(Component.text("/citybuild clan create <name> - Create a clan", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild setwarp <name> - Create a warp", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild warp <name> - Go to a warp", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild achievements - View achievements", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild quests - Daily quests", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild enchant - Enchanting system", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild trade - Player trading", NamedTextColor.YELLOW));
         
         player.sendMessage(Component.text("--- Shop ---", NamedTextColor.AQUA));
         player.sendMessage(Component.text("/citybuild shop list - View all items", NamedTextColor.YELLOW));
@@ -651,6 +822,7 @@ public class CityBuildCommand implements CommandExecutor {
         player.sendMessage(Component.text("--- Info ---", NamedTextColor.AQUA));
         player.sendMessage(Component.text("/citybuild leaderboard - Top 10 players", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild bank history - View transactions", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild menu - Open main menu", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild help - Show this message", NamedTextColor.YELLOW));
     }
 }
