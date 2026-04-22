@@ -11,31 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up JDK 16
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '16'
         distribution: 'temurin'
+        cache: maven
     
     - name: Build with Maven
       run: mvn clean package -DskipTests
     
     - name: Upload JAR as Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: CityBuildPlugin
         path: target/CityBuildPlugin-1.0-SNAPSHOT.jar
-
-    - name: Create Release
-      uses: actions/create-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: CityBuild Plugin JAR ready for deployment
-        draft: false
-        prerelease: false
+        retention-days: 30
