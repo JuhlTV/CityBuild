@@ -4,8 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
-import org.bukkit.generator.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import com.citybuild.CityBuildPlugin;
 
 public class WorldManager {
