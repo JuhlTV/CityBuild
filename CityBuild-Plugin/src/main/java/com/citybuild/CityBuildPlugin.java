@@ -18,6 +18,11 @@ import com.citybuild.managers.TradingManager;
 import com.citybuild.managers.PlaytimeManager;
 import com.citybuild.managers.EventManager;
 import com.citybuild.managers.AdminManager;
+import com.citybuild.managers.BanManager;
+import com.citybuild.managers.TransactionManager;
+import com.citybuild.managers.PlotTaxManager;
+import com.citybuild.managers.AuditManager;
+import com.citybuild.managers.CacheManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.AdminListener;
@@ -47,6 +52,11 @@ public class CityBuildPlugin extends JavaPlugin {
     private PlaytimeManager playtimeManager;
     private EventManager eventManager;
     private AdminManager adminManager;
+    private BanManager banManager;
+    private TransactionManager transactionManager;
+    private PlotTaxManager plotTaxManager;
+    private AuditManager auditManager;
+    private CacheManager cacheManager;
 
     @Override
     public void onEnable() {
@@ -89,6 +99,13 @@ public class CityBuildPlugin extends JavaPlugin {
         
         // Initialize admin system
         this.adminManager = new AdminManager(this);
+        this.banManager = new BanManager(this);
+        
+        // Initialize advanced tracking systems
+        this.transactionManager = new TransactionManager(this);
+        this.plotTaxManager = new PlotTaxManager(this);
+        this.auditManager = new AuditManager(this);
+        this.cacheManager = new CacheManager();
         
         // Initialize GUI Manager
         this.guiManager = new GUIManager(this);
@@ -104,10 +121,9 @@ public class CityBuildPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RewardListener(this), this);
         getServer().getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
         
-        getLogger().info("✓ CityBuild Plugin enabled v2.2.0 - MEGA EDITION + ADMIN SYSTEM");
-        getLogger().info("✓ Running on Paper 1.21.1");
-        getLogger().info("✓ 11 Managers Active: Economy, Plot, World, Shop, Bank, Daily, Auction, Achievement, Clan, Warp, Quest, Enchanting, Trading, Playtime, Events");
-        getLogger().info("✓ All 9 Expansion Features Available!");
+        getLogger().info("✓ CityBuild Plugin enabled v2.4.0 - ULTIMATE EDITION + Advanced Systems");
+        getLogger().info("✓ Running on Paper 1.21.1 with 20+ Manager systems");
+        getLogger().info("✓ Systems: Economy, Plots, Shops, Clans, Warps, Quests, Achievements, Trading, Enchanting, + Advanced Audit/Ban/Tax/Cache systems");
     }
 
     @Override
@@ -148,7 +164,19 @@ public class CityBuildPlugin extends JavaPlugin {
         if (adminManager != null) {
             adminManager.saveData();
         }
-        getLogger().info("✓ CityBuild Plugin v2.2.0 disabled - All managers saved");
+        if (banManager != null) {
+            banManager.saveData();
+        }
+        if (transactionManager != null) {
+            transactionManager.saveData();
+        }
+        if (plotTaxManager != null) {
+            plotTaxManager.saveData();
+        }
+        if (auditManager != null) {
+            auditManager.saveData();
+        }
+        getLogger().info("✓ CityBuild Plugin v2.4.0 disabled - All 20+ managers saved");
     }
 
     public static CityBuildPlugin getInstance() {
@@ -221,5 +249,25 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public AdminManager getAdminManager() {
         return adminManager;
+    }
+
+    public BanManager getBanManager() {
+        return banManager;
+    }
+
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    public PlotTaxManager getPlotTaxManager() {
+        return plotTaxManager;
+    }
+
+    public AuditManager getAuditManager() {
+        return auditManager;
+    }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
     }
 }
