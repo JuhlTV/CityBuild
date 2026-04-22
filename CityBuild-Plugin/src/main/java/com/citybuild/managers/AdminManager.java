@@ -81,8 +81,14 @@ public class AdminManager {
     }
 
     public boolean canManage(String managerUuid, String targetUuid) {
+        // Allow players to manage themselves (change own role)
+        if (managerUuid.equals(targetUuid)) {
+            return true;
+        }
+        
         Role managerRole = getRole(managerUuid);
         Role targetRole = getRole(targetUuid);
+        // Manager must have strictly higher level than target
         return managerRole.level > targetRole.level;
     }
 

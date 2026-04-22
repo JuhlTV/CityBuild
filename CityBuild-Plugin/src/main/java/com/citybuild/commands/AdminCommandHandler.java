@@ -91,8 +91,8 @@ public class AdminCommandHandler {
 
         String targetUuid = target.getUniqueId().toString();
 
-        // Check if can manage
-        if (!adminManager.canManage(playerUuid, targetUuid)) {
+        // Check if can manage (OPs can always manage, or you can manage yourself)
+        if (!player.isOp() && !adminManager.canManage(playerUuid, targetUuid)) {
             player.sendMessage(Component.text("❌ Du kannst diese Person nicht verwalten!", NamedTextColor.RED));
             return;
         }
@@ -129,7 +129,7 @@ public class AdminCommandHandler {
 
         String targetUuid = target.getUniqueId().toString();
 
-        if (!adminManager.canManage(playerUuid, targetUuid)) {
+        if (!player.isOp() && !adminManager.canManage(playerUuid, targetUuid)) {
             player.sendMessage(Component.text("❌ Du kannst diese Person nicht verwalten!", NamedTextColor.RED));
             return;
         }
@@ -191,7 +191,7 @@ public class AdminCommandHandler {
 
         String targetUuid = target.getUniqueId().toString();
 
-        if (!adminManager.canManage(playerUuid, targetUuid)) {
+        if (!player.isOp() && !adminManager.canManage(playerUuid, targetUuid)) {
             player.sendMessage(Component.text("❌ Du kannst diese Person nicht verwalten!", NamedTextColor.RED));
             return;
         }
@@ -228,7 +228,7 @@ public class AdminCommandHandler {
 
         String targetUuid = target.getUniqueId().toString();
 
-        if (!adminManager.canManage(playerUuid, targetUuid)) {
+        if (!player.isOp() && !adminManager.canManage(playerUuid, targetUuid)) {
             player.sendMessage(Component.text("❌ Du kannst diese Person nicht verwalten!", NamedTextColor.RED));
             return;
         }
@@ -260,7 +260,7 @@ public class AdminCommandHandler {
 
         String targetUuid = target.getUniqueId().toString();
 
-        if (!adminManager.canManage(playerUuid, targetUuid)) {
+        if (!player.isOp() && !adminManager.canManage(playerUuid, targetUuid)) {
             player.sendMessage(Component.text("❌ Du kannst diese Person nicht verwalten!", NamedTextColor.RED));
             return;
         }
