@@ -1,0 +1,19 @@
+# Economy Settings
+economy:
+  starting_balance: 10000
+  plot_buy_price: 5000
+  plot_sell_price: 4000
+
+# Database
+database:
+  type: json
+  file: plugins/CityBuild/data/players.json
+  plots_file: plugins/CityBuild/data/plots.json
+
+# Messages
+messages:
+  prefix: "&8[&bCityBuild&8] &r"
+  insufficient_funds: "&cInsufficient funds! Need ${needed}, Have ${have}"
+  plot_purchased: "&aPlot purchased! Plot #{plot_id}"
+  plot_sold: "&aPlot sold for ${amount}!"
+  no_plots: "&cYou don't own any plots!"

@@ -1,0 +1,14 @@
+.git/
+.idea/
+.vscode/
+*.iml
+target/
+*.class
+*.jar
+*.log
+.DS_Store
+plugins/
+logs/
+world/
+data/
+plugins/CityBuild/data/*.json
