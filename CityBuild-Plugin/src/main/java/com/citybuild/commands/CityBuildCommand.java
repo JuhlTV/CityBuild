@@ -25,6 +25,8 @@ public class CityBuildCommand implements CommandExecutor {
     private final CityBuildPlugin plugin;
     private final EconomyManager economy;
     private final PlotManager plots;
+    private final java.util.Map<String, Long> teleportCooldowns = new java.util.HashMap<>();
+    private final long TELEPORT_COOLDOWN_MS = 3000; // 3 seconds
 
     public CityBuildCommand(CityBuildPlugin plugin) {
         this.plugin = plugin;
@@ -188,47 +190,119 @@ public class CityBuildCommand implements CommandExecutor {
             return true;
         }
         
+        // Check cooldown
+        if (isTeleportOnCooldown(player)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("⏱️ Wait before teleporting again!", NamedTextColor.YELLOW)));
+            return true;
+        }
+
         // Create/update plot frame before teleporting
         plots.createPlotFrame(uuid);
         
         Location plotLocation = plots.getFirstPlotLocation(uuid);
         player.teleport(plotLocation);
         
-        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
-                .append(Component.text("✓ Teleported to your plot!", NamedTextColor.GREEN)));
+        // Set cooldown
+        setTeleportCooldown(player);
+        
+        // Show title message
+        player.showTitle(net.kyori.adventure.title.Title.title(
+            Component.text("📍 Plot World", NamedTextColor.AQUA, net.kyori.adventure.text.format.TextDecoration.BOLD),
+            Component.text("You've been teleported to your plot", NamedTextColor.GRAY)
+        ));
+        
+        // Grant 5-second invincibility after teleport
+        grantInvincibility(player, 5);
         
         return true;
     }
 
     private boolean handleTeleportFarm(Player player) {
+        // Check cooldown
+        if (isTeleportOnCooldown(player)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("⏱️ Wait before teleporting again!", NamedTextColor.YELLOW)));
+            return true;
+        }
+
         WorldManager worldManager = plugin.getWorldManager();
         Location farmSpawn = worldManager.getFarmWorld().getSpawnLocation();
         
         player.teleport(farmSpawn);
-        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
-                .append(Component.text("✓ Teleported to Farm World!", NamedTextColor.GREEN)));
+        
+        // Set cooldown
+        setTeleportCooldown(player);
+        
+        // Show title message
+        player.showTitle(net.kyori.adventure.title.Title.title(
+            Component.text("🌾 Farm World", NamedTextColor.GREEN, net.kyori.adventure.text.format.TextDecoration.BOLD),
+            Component.text("Mine blocks and earn money!", NamedTextColor.GRAY)
+        ));
+        
+        // Grant 5-second invincibility
+        grantInvincibility(player, 5);
         
         return true;
     }
 
     private boolean handleTeleportPvp(Player player) {
+        // Check cooldown
+        if (isTeleportOnCooldown(player)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("⏱️ Wait before teleporting again!", NamedTextColor.YELLOW)));
+            return true;
+        }
+
         WorldManager worldManager = plugin.getWorldManager();
         Location pvpSpawn = worldManager.getPvpWorld().getSpawnLocation();
         
         player.teleport(pvpSpawn);
-        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
-                .append(Component.text("✓ Teleported to PVP World!", NamedTextColor.GREEN)));
+        
+        // Set cooldown
+        setTeleportCooldown(player);
+        
+        // Show title message
+        player.showTitle(net.kyori.adventure.title.Title.title(
+            Component.text("⚔️ PVP World", NamedTextColor.RED, net.kyori.adventure.text.format.TextDecoration.BOLD),
+            Component.text("Kill monsters and earn money!", NamedTextColor.GRAY)
+        ));
+        
+        // Grant 5-second invincibility
+        grantInvincibility(player, 5);
         
         return true;
     }
 
-    private boolean handleAdmin(Player player, String[] args) {
-        if (args.length < 2) {
-            player.sendMessage(Component.text("[CityBuild] Admin commands:", NamedTextColor.BLUE));
-            player.sendMessage(Component.text("  /citybuild admin reset - Reset all data", NamedTextColor.YELLOW));
-            player.sendMessage(Component.text("  /citybuild admin stats - Show statistics", NamedTextColor.YELLOW));
-            return true;
+    /**
+     * Check if player is on teleport cooldown
+     */
+    private boolean isTeleportOnCooldown(Player player) {
+        String uuid = player.getUniqueId().toString();
+        if (!teleportCooldowns.containsKey(uuid)) {
+            return false;
         }
+        long lastTeleport = teleportCooldowns.get(uuid);
+        return System.currentTimeMillis() - lastTeleport < TELEPORT_COOLDOWN_MS;
+    }
+
+    /**
+     * Set teleport cooldown for player
+     */
+    private void setTeleportCooldown(Player player) {
+        teleportCooldowns.put(player.getUniqueId().toString(), System.currentTimeMillis());
+    }
+
+    /**
+     * Grant temporary invincibility (fall damage protection)
+     */
+    private void grantInvincibility(Player player, int seconds) {
+        player.setInvulnerable(true);
+        org.bukkit.Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            if (player.isOnline()) {
+                player.setInvulnerable(false);
+            }
+        }, seconds * 20L); // Convert seconds to ticks
 
         switch (args[1].toLowerCase()) {
             case "reset":
