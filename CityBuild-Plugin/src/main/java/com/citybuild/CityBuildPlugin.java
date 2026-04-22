@@ -14,6 +14,7 @@ import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.MobSpawnListener;
 import com.citybuild.listeners.InventoryClickListener;
 import com.citybuild.listeners.PlotProtectionListener;
+import com.citybuild.listeners.RewardListener;
 import com.citybuild.gui.GUIManager;
 
 public class CityBuildPlugin extends JavaPlugin {
@@ -64,6 +65,7 @@ public class CityBuildPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobSpawnListener(worldManager.getPlotWorld()), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
         getServer().getPluginManager().registerEvents(new PlotProtectionListener(this), this);
+        getServer().getPluginManager().registerEvents(new RewardListener(this), this);
         
         getLogger().info("✓ CityBuild Plugin enabled v2.0.0");
         getLogger().info("✓ Running on Paper 1.21.1");
