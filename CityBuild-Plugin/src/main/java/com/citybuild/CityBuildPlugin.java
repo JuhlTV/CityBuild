@@ -12,6 +12,11 @@ import com.citybuild.managers.AuctionHouseManager;
 import com.citybuild.managers.AchievementManager;
 import com.citybuild.managers.ClanManager;
 import com.citybuild.managers.WarpManager;
+import com.citybuild.managers.QuestManager;
+import com.citybuild.managers.EnchantingManager;
+import com.citybuild.managers.TradingManager;
+import com.citybuild.managers.PlaytimeManager;
+import com.citybuild.managers.EventManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.MobSpawnListener;
@@ -34,6 +39,11 @@ public class CityBuildPlugin extends JavaPlugin {
     private AchievementManager achievementManager;
     private ClanManager clanManager;
     private WarpManager warpManager;
+    private QuestManager questManager;
+    private EnchantingManager enchantingManager;
+    private TradingManager tradingManager;
+    private PlaytimeManager playtimeManager;
+    private EventManager eventManager;
 
     @Override
     public void onEnable() {
@@ -60,10 +70,19 @@ public class CityBuildPlugin extends JavaPlugin {
         this.auctionHouseManager = new AuctionHouseManager(this);
         this.dailyRewardManager = new DailyRewardManager(this);
         
-        // Initialize expansion features
+        // Initialize expansion features (Tier 1)
         this.achievementManager = new AchievementManager(this);
         this.clanManager = new ClanManager(this);
         this.warpManager = new WarpManager(this);
+        
+        // Initialize advanced features (Tier 2)
+        this.questManager = new QuestManager(this);
+        this.enchantingManager = new EnchantingManager(this, economyManager);
+        this.tradingManager = new TradingManager(this);
+        
+        // Initialize tier 3 features
+        this.playtimeManager = new PlaytimeManager(this, economyManager);
+        this.eventManager = new EventManager(this, economyManager);
         
         // Initialize GUI Manager
         this.guiManager = new GUIManager(this);
@@ -78,10 +97,10 @@ public class CityBuildPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlotProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new RewardListener(this), this);
         
-        getLogger().info("✓ CityBuild Plugin enabled v2.0.0");
+        getLogger().info("✓ CityBuild Plugin enabled v2.1.0 - MEGA EDITION");
         getLogger().info("✓ Running on Paper 1.21.1");
-        getLogger().info("✓ Worlds created: cityplot, cityfarm, citypvp");
-        getLogger().info("✓ Advanced Features: Shop, Bank, Daily Rewards");
+        getLogger().info("✓ 11 Managers Active: Economy, Plot, World, Shop, Bank, Daily, Auction, Achievement, Clan, Warp, Quest, Enchanting, Trading, Playtime, Events");
+        getLogger().info("✓ All 9 Expansion Features Available!");
     }
 
     @Override
@@ -110,7 +129,16 @@ public class CityBuildPlugin extends JavaPlugin {
         if (warpManager != null) {
             warpManager.saveData();
         }
-        getLogger().info("✓ CityBuild Plugin disabled");
+        if (questManager != null) {
+            questManager.saveData();
+        }
+        if (tradingManager != null) {
+            tradingManager.saveData();
+        }
+        if (playtimeManager != null) {
+            playtimeManager.saveData();
+        }
+        getLogger().info("✓ CityBuild Plugin v2.1.0 disabled - All 11 managers saved");
     }
 
     public static CityBuildPlugin getInstance() {
@@ -159,5 +187,25 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public WarpManager getWarpManager() {
         return warpManager;
+    }
+
+    public QuestManager getQuestManager() {
+        return questManager;
+    }
+
+    public EnchantingManager getEnchantingManager() {
+        return enchantingManager;
+    }
+
+    public TradingManager getTradingManager() {
+        return tradingManager;
+    }
+
+    public PlaytimeManager getPlaytimeManager() {
+        return playtimeManager;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
     }
 }
