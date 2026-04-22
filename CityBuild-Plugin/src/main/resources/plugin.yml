@@ -1,7 +1,7 @@
 name: CityBuild
-version: 1.0.0
+version: 2.0.0
 main: com.citybuild.CityBuildPlugin
-description: Complete City Building System
+description: Complete City Building System with Economy, Plots, Shop, Bank & Daily Rewards
 authors: [JuhlTV]
 api-version: 1.20.4
 
@@ -9,12 +9,24 @@ commands:
   citybuild:
     description: Main CityBuild command
     usage: /citybuild <command>
-    aliases: [cb]
+    aliases: [cb, city]
     subcommands:
+      # Economy
+      - balance
+      - daily
+      - pay
+      - bank
+      # Plots
       - buy
       - sell
       - info
-      - balance
+      - tpplot
+      # Shop
+      - shop
+      # Worlds
+      - tpfarm
+      - tppvp
+      # Info
       - leaderboard
       - help
       - admin
