@@ -105,7 +105,7 @@ public class PlotManager {
         int x = col * plotDistance;
         int z = row * plotDistance;
         
-        return new Location(plotWorld, x + 8, 65, z + 8); // Center of plot at Y=65
+        return new Location(plotWorld, x + 8, -60, z + 8); // Center of plot at Y=-60
     }
     
     /**
