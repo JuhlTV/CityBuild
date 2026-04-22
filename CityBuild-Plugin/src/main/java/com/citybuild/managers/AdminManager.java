@@ -66,21 +66,42 @@ public class AdminManager {
 
     // ===== ROLE MANAGEMENT =====
     public void setRole(String uuid, Role role) {
+        if (uuid == null || uuid.isEmpty() || role == null) {
+            plugin.getLogger().warning("Invalid setRole call: uuid=" + uuid + ", role=" + role);
+            return;
+        }
+        
         AdminData data = getAdminData(uuid);
-        data.role = role;
-        logAction(uuid, "Role changed to: " + role.displayName);
-        saveData();
+        if (data != null) {
+            data.role = role;
+            logAction(uuid, "Role changed to: " + role.displayName);
+            saveData();
+        }
     }
 
     public Role getRole(String uuid) {
-        return getAdminData(uuid).role;
+        if (uuid == null || uuid.isEmpty()) {
+            return Role.GUEST;
+        }
+        
+        AdminData data = getAdminData(uuid);
+        return data != null ? data.role : Role.GUEST;
     }
 
     public boolean hasPermission(String uuid, Role requiredRole) {
+        if (uuid == null || requiredRole == null) {
+            return false;
+        }
         return getRole(uuid).level >= requiredRole.level;
     }
 
     public boolean canManage(String managerUuid, String targetUuid) {
+        // Null/empty check
+        if (managerUuid == null || managerUuid.isEmpty() || targetUuid == null || targetUuid.isEmpty()) {
+            plugin.getLogger().warning("Invalid canManage call with null/empty uuid!");
+            return false;
+        }
+        
         // Allow players to manage themselves (change own role)
         if (managerUuid.equals(targetUuid)) {
             return true;
@@ -88,6 +109,7 @@ public class AdminManager {
         
         Role managerRole = getRole(managerUuid);
         Role targetRole = getRole(targetUuid);
+        
         // Manager must have strictly higher level than target
         return managerRole.level > targetRole.level;
     }
@@ -153,14 +175,24 @@ public class AdminManager {
 
     // ===== ADMIN DATA =====
     public AdminData getAdminData(String uuid) {
+        if (uuid == null || uuid.isEmpty()) {
+            plugin.getLogger().warning("Attempted to get AdminData with null/empty UUID!");
+            return new AdminData("unknown");
+        }
         return adminPlayers.computeIfAbsent(uuid, AdminData::new);
     }
 
     public void logAction(String uuid, String action) {
+        if (uuid == null || uuid.isEmpty() || action == null) {
+            plugin.getLogger().warning("Invalid logAction call!");
+            return;
+        }
+        
         AdminData data = getAdminData(uuid);
-        String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
-        data.actionLog.add("[" + timestamp + "] " + action);
-        if (data.actionLog.size() > 100) {
+        if (data != null) {
+            String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+            data.actionLog.add("[" + timestamp + "] " + action);
+            if (data.actionLog.size() > 100) {
             data.actionLog.remove(0); // Keep last 100 actions
         }
     }

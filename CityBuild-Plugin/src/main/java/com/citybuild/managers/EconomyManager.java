@@ -11,13 +11,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class EconomyManager {
     private final JavaPlugin plugin;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final File dataFile;
     private final Map<String, PlayerData> playerData;
-    private final int startingBalance;
+    private final Logger logger;
+    private long startingBalance;
     
     public static class PlayerData {
         public String uuid;
@@ -31,66 +33,117 @@ public class EconomyManager {
 
         public PlayerData(String uuid, long balance, long lastTransaction, int plots) {
             this.uuid = uuid;
-            this.balance = balance;
+            this.balance = Math.max(0, balance); // Ensure non-negative
             this.lastTransaction = lastTransaction;
-            this.plots = plots;
+            this.plots = Math.max(0, plots);
         }
     }
 
     public EconomyManager(JavaPlugin plugin) {
         this.plugin = plugin;
+        this.logger = plugin.getLogger();
         this.dataFile = new File(plugin.getDataFolder(), "data/players.json");
         this.playerData = new HashMap<>();
-        this.startingBalance = plugin.getConfig().getInt("economy.starting_balance", 10000);
+        this.startingBalance = plugin.getConfig().getLong("economy.starting_balance", 10000L);
         
         // Create data directory
-        dataFile.getParentFile().mkdirs();
+        if (!dataFile.getParentFile().exists()) {
+            if (!dataFile.getParentFile().mkdirs()) {
+                logger.warning("Failed to create data directory!");
+            }
+        }
         
         loadData();
+        logger.info("EconomyManager initialized with " + playerData.size() + " players");
     }
 
     public void initializePlayer(Player player) {
-        String uuid = player.getUniqueId().toString();
+        if (player == null) {
+            logger.warning("Attempted to initialize null player!");
+            return;
+        }
         
+        String uuid = player.getUniqueId().toString();
         if (!playerData.containsKey(uuid)) {
             PlayerData data = new PlayerData(uuid);
             data.balance = startingBalance;
             playerData.put(uuid, data);
             saveData();
+            logger.fine("Initialized new player: " + player.getName());
         }
     }
 
     public long getBalance(Player player) {
+        if (player == null) {
+            logger.warning("Attempted to get balance for null player!");
+            return 0;
+        }
+        
         initializePlayer(player);
-        return playerData.get(player.getUniqueId().toString()).balance;
+        PlayerData data = playerData.get(player.getUniqueId().toString());
+        return data != null ? data.balance : startingBalance;
     }
 
     public void setBalance(Player player, long amount) {
+        if (player == null) {
+            logger.warning("Attempted to set balance for null player!");
+            return;
+        }
+        
+        if (amount < 0) {
+            logger.warning("Attempted to set negative balance for " + player.getName() + "!");
+            return;
+        }
+        
         initializePlayer(player);
         PlayerData data = playerData.get(player.getUniqueId().toString());
-        data.balance = amount;
-        data.lastTransaction = System.currentTimeMillis();
-        saveData();
+        if (data != null) {
+            data.balance = amount;
+            data.lastTransaction = System.currentTimeMillis();
+            saveData();
+        }
     }
 
     public void addBalance(Player player, long amount) {
+        if (player == null || amount < 0) {
+            logger.warning("Invalid add balance call: player=" + player + ", amount=" + amount);
+            return;
+        }
+        
         long current = getBalance(player);
         setBalance(player, current + amount);
     }
 
     public void addBalance(String playerUuid, long amount) {
+        if (playerUuid == null || playerUuid.isEmpty() || amount < 0) {
+            logger.warning("Invalid add balance call: uuid=" + playerUuid + ", amount=" + amount);
+            return;
+        }
+        
         long current = getBalance(playerUuid);
         setBalance(playerUuid, current + amount);
     }
 
     public void removeBalance(Player player, long amount) {
+        if (player == null || amount < 0) {
+            logger.warning("Invalid remove balance call: player=" + player + ", amount=" + amount);
+            return;
+        }
+        
         long current = getBalance(player);
         if (current >= amount) {
             setBalance(player, current - amount);
+        } else {
+            logger.warning(player.getName() + " tried to spend $" + amount + " but only has $" + current);
         }
     }
 
     public void removeBalance(String playerUuid, long amount) {
+        if (playerUuid == null || playerUuid.isEmpty() || amount < 0) {
+            logger.warning("Invalid remove balance call: uuid=" + playerUuid + ", amount=" + amount);
+            return;
+        }
+        
         long current = getBalance(playerUuid);
         if (current >= amount) {
             setBalance(playerUuid, current - amount);
@@ -98,23 +151,42 @@ public class EconomyManager {
     }
 
     public long getBalance(String playerUuid) {
-        if (!playerData.containsKey(playerUuid)) {
-            playerData.put(playerUuid, new PlayerData(playerUuid, 10000, System.currentTimeMillis(), 0));
+        if (playerUuid == null || playerUuid.isEmpty()) {
+            logger.warning("Attempted to get balance with invalid UUID!");
+            return 0;
         }
-        return playerData.get(playerUuid).balance;
+        
+        if (!playerData.containsKey(playerUuid)) {
+            playerData.put(playerUuid, new PlayerData(playerUuid, startingBalance, System.currentTimeMillis(), 0));
+            saveData();
+        }
+        
+        PlayerData data = playerData.get(playerUuid);
+        return data != null ? data.balance : startingBalance;
     }
 
     public void setBalance(String playerUuid, long amount) {
-        if (!playerData.containsKey(playerUuid)) {
-            playerData.put(playerUuid, new PlayerData(playerUuid, 10000, System.currentTimeMillis(), 0));
+        if (playerUuid == null || playerUuid.isEmpty() || amount < 0) {
+            logger.warning("Invalid set balance call: uuid=" + playerUuid + ", amount=" + amount);
+            return;
         }
+        
+        if (!playerData.containsKey(playerUuid)) {
+            playerData.put(playerUuid, new PlayerData(playerUuid, startingBalance, System.currentTimeMillis(), 0));
+        }
+        
         PlayerData data = playerData.get(playerUuid);
-        data.balance = amount;
-        data.lastTransaction = System.currentTimeMillis();
-        saveData();
+        if (data != null) {
+            data.balance = amount;
+            data.lastTransaction = System.currentTimeMillis();
+            saveData();
+        }
     }
 
     public boolean canAfford(Player player, long amount) {
+        if (player == null || amount < 0) {
+            return false;
+        }
         return getBalance(player) >= amount;
     }
 
