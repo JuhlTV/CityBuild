@@ -11,6 +11,8 @@ import com.citybuild.managers.DailyRewardManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.MobSpawnListener;
+import com.citybuild.listeners.InventoryClickListener;
+import com.citybuild.gui.GUIManager;
 
 public class CityBuildPlugin extends JavaPlugin {
 
@@ -21,6 +23,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private ShopManager shopManager;
     private BankManager bankManager;
     private DailyRewardManager dailyRewardManager;
+    private GUIManager guiManager;
 
     @Override
     public void onEnable() {
@@ -45,12 +48,16 @@ public class CityBuildPlugin extends JavaPlugin {
         this.shopManager = new ShopManager(this);
         this.bankManager = new BankManager(this, economyManager);
         this.dailyRewardManager = new DailyRewardManager(this);
+        Initialize GUI Manager
+        this.guiManager = new GUIManager(this);
         
         // Register commands
         getCommand("citybuild").setExecutor(new CityBuildCommand(this));
         
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new MobSpawnListener(worldManager.getPlotWorld()), this);
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(this
         getServer().getPluginManager().registerEvents(new MobSpawnListener(worldManager.getPlotWorld()), this);
         
         getLogger().info("✓ CityBuild Plugin enabled v2.0.0");
@@ -102,5 +109,9 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public DailyRewardManager getDailyRewardManager() {
         return dailyRewardManager;
+    }
+
+    public GUIManager getGUIManager() {
+        return guiManager;
     }
 }

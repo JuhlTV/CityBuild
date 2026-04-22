@@ -40,11 +40,15 @@ public class CityBuildCommand implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            sendHelp(player);
+            // Open main GUI menu
+            plugin.getGUIManager().openMainMenu(player);
             return true;
         }
 
         switch (args[0].toLowerCase()) {
+            case "menu":
+                plugin.getGUIManager().openMainMenu(player);
+                return true;
             case "buy":
                 return handleBuy(player);
             case "sell":
