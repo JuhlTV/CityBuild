@@ -89,7 +89,7 @@ public class EconomyManager {
         return playerData.entrySet().stream()
                 .sorted((a, b) -> Long.compare(b.getValue().balance, a.getValue().balance))
                 .limit(limit)
-                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().balance))
+                .map(e -> (Map.Entry<String, Long>) new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().balance))
                 .toList();
     }
 

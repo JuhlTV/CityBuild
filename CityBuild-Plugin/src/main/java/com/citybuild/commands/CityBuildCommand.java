@@ -9,6 +9,7 @@ import com.citybuild.managers.BankManager;
 import com.citybuild.managers.DailyRewardManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -151,7 +152,7 @@ public class CityBuildCommand implements CommandExecutor {
     private boolean handleLeaderboard(Player player) {
         var leaderboard = economy.getLeaderboard(10);
 
-        player.sendMessage(Component.text("=== CityBuild Leaderboard ===", NamedTextColor.GOLD).bold(true));
+        player.sendMessage(Component.text("=== CityBuild Leaderboard ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
 
         int rank = 1;
         for (var entry : leaderboard) {
@@ -238,7 +239,7 @@ public class CityBuildCommand implements CommandExecutor {
         
         if (args.length < 2) {
             // Show shop menu
-            player.sendMessage(Component.text("=== CityBuild Shop ===", NamedTextColor.GOLD).bold(true));
+            player.sendMessage(Component.text("=== CityBuild Shop ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
             player.sendMessage(Component.text("Use: /citybuild shop list - Show all items", NamedTextColor.YELLOW));
             player.sendMessage(Component.text("Use: /citybuild shop buy <item> <amount> - Buy item", NamedTextColor.YELLOW));
             player.sendMessage(Component.text("Use: /citybuild shop sell <item> <amount> - Sell item", NamedTextColor.YELLOW));
@@ -247,7 +248,7 @@ public class CityBuildCommand implements CommandExecutor {
         
         switch (args[1].toLowerCase()) {
             case "list":
-                player.sendMessage(Component.text("=== Shop Items ===", NamedTextColor.GOLD).bold(true));
+                player.sendMessage(Component.text("=== Shop Items ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
                 for (Map.Entry<String, ShopManager.ShopItem> entry : shop.getAllShopItems().entrySet()) {
                     ShopManager.ShopItem item = entry.getValue();
                     player.sendMessage(Component.text(item.displayName + " - Buy: $" + item.buyPrice + " | Sell: $" + item.sellPrice, NamedTextColor.YELLOW));
@@ -316,7 +317,14 @@ public class CityBuildCommand implements CommandExecutor {
                         return true;
                     }
                     
-                    int hasAmount = player.getInventory().count(mat);
+                    // Count items in inventory manually
+                    int hasAmount = 0;
+                    for (ItemStack item : player.getInventory().getContents()) {
+                        if (item != null && item.getType() == mat) {
+                            hasAmount += item.getAmount();
+                        }
+                    }
+                    
                     if (hasAmount < amount) {
                         player.sendMessage(Component.text("You don't have " + amount + "x " + item.displayName, NamedTextColor.RED));
                         return true;
@@ -438,7 +446,7 @@ public class CityBuildCommand implements CommandExecutor {
     }
 
     private void sendHelp(Player player) {
-        player.sendMessage(Component.text("=== CityBuild Commands ===", NamedTextColor.GOLD).bold(true));
+        player.sendMessage(Component.text("=== CityBuild Commands ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
         player.sendMessage(Component.text("--- Economy ---", NamedTextColor.AQUA));
         player.sendMessage(Component.text("/citybuild balance - Check balance", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild pay <player> <amount> - Send money", NamedTextColor.YELLOW));
