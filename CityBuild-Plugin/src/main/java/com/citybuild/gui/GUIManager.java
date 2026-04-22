@@ -87,7 +87,7 @@ public class GUIManager {
         Inventory inv = Bukkit.createInventory(null, 45, Component.text("CityBuild Shop", NamedTextColor.DARK_GREEN, TextDecoration.BOLD));
 
         int slot = 0;
-        for (ShopManager.ShopItem shopItem : shop.getAllShopItems()) {
+        for (ShopManager.ShopItem shopItem : shop.getAllShopItems().values()) {
             if (slot >= 44) break; // Leave last slot for back button
 
             ItemStack item = new ItemStack(Material.valueOf(shopItem.material));
@@ -119,7 +119,7 @@ public class GUIManager {
 
         String uuid = player.getUniqueId().toString();
         long balance = economy.getBalance(player);
-        int plots = plots.getPlotCount(uuid);
+        int plotCount = plots.getPlotCount(uuid);
 
         // Balance
         ItemStack balanceItem = createItem(Material.GOLD_BLOCK, "💰 Balance", NamedTextColor.GOLD, 
@@ -128,7 +128,7 @@ public class GUIManager {
 
         // Plots
         ItemStack plotItem = createItem(Material.GRASS_BLOCK, "🏗️ Plots Owned", NamedTextColor.GREEN,
-            Component.text(plots + " plots", NamedTextColor.AQUA));
+            Component.text(plotCount + " plots", NamedTextColor.AQUA));
         inv.setItem(13, plotItem);
 
         // Daily Rewards
