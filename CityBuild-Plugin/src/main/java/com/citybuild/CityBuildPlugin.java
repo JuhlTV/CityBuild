@@ -9,6 +9,9 @@ import com.citybuild.managers.ShopManager;
 import com.citybuild.managers.BankManager;
 import com.citybuild.managers.DailyRewardManager;
 import com.citybuild.managers.AuctionHouseManager;
+import com.citybuild.managers.AchievementManager;
+import com.citybuild.managers.ClanManager;
+import com.citybuild.managers.WarpManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.MobSpawnListener;
@@ -28,6 +31,9 @@ public class CityBuildPlugin extends JavaPlugin {
     private DailyRewardManager dailyRewardManager;
     private GUIManager guiManager;
     private AuctionHouseManager auctionHouseManager;
+    private AchievementManager achievementManager;
+    private ClanManager clanManager;
+    private WarpManager warpManager;
 
     @Override
     public void onEnable() {
@@ -53,6 +59,11 @@ public class CityBuildPlugin extends JavaPlugin {
         this.bankManager = new BankManager(this, economyManager);
         this.auctionHouseManager = new AuctionHouseManager(this);
         this.dailyRewardManager = new DailyRewardManager(this);
+        
+        // Initialize expansion features
+        this.achievementManager = new AchievementManager(this);
+        this.clanManager = new ClanManager(this);
+        this.warpManager = new WarpManager(this);
         
         // Initialize GUI Manager
         this.guiManager = new GUIManager(this);
@@ -90,6 +101,15 @@ public class CityBuildPlugin extends JavaPlugin {
         if (auctionHouseManager != null) {
             auctionHouseManager.saveData();
         }
+        if (achievementManager != null) {
+            achievementManager.saveData();
+        }
+        if (clanManager != null) {
+            clanManager.saveData();
+        }
+        if (warpManager != null) {
+            warpManager.saveData();
+        }
         getLogger().info("✓ CityBuild Plugin disabled");
     }
 
@@ -123,9 +143,21 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public GUIManager getGUIManager() {
         return guiManager;
+    }
 
     public AuctionHouseManager getAuctionHouseManager() {
         return auctionHouseManager;
     }
+
+    public AchievementManager getAchievementManager() {
+        return achievementManager;
+    }
+
+    public ClanManager getClanManager() {
+        return clanManager;
+    }
+
+    public WarpManager getWarpManager() {
+        return warpManager;
     }
 }
