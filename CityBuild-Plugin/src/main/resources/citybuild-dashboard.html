@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏗️ CityBuild Control Panel - v2.4.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            border-bottom: 3px solid #00d4ff;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .version {
+            color: #00d4ff;
+            font-size: 0.9em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: #0f3460;
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            border-color: #00ff88;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title em {
+            font-size: 1.5em;
+            font-style: normal;
+        }
+
+        .setting {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #00d4ff22;
+        }
+
+        .setting:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .setting-label {
+            font-size: 0.95em;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .setting-value {
+            background: #0a2342;
+            padding: 10px;
+            border-left: 3px solid #00ff88;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            background: #0a2342;
+            border: 2px solid #00d4ff;
+            color: #e0e0e0;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .status {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status.online {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+        }
+
+        .status.offline {
+            background: rgba(255, 50, 50, 0.1);
+            border: 2px solid #ff3232;
+        }
+
+        .status-text {
+            font-weight: bold;
+        }
+
+        .admin-controls {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #ff6b00;
+            margin-bottom: 40px;
+        }
+
+        .admin-controls h2 {
+            color: #ff6b00;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .command-box {
+            background: #0a2342;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            border-left: 3px solid #ff6b00;
+        }
+
+        .section-divider {
+            text-align: center;
+            margin: 50px 0;
+            opacity: 0.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 2px solid #00d4ff;
+            color: #888;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ CityBuild Control Panel</h1>
+            <p class="version">Version 2.4.0 - ULTIMATE EDITION</p>
+        </header>
+
+        <div class="status online">
+            <div>
+                <span class="status-text">🟢 Server Status: ONLINE</span>
+                <p style="margin-top: 5px; opacity: 0.8;">Paper 1.21.1 | 20+ Manager Systems</p>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 0.9em; opacity: 0.7;">Last Updated: <span id="timestamp">just now</span></p>
+            </div>
+        </div>
+
+        <div class="admin-controls">
+            <h2>👑 Admin Quick Commands</h2>
+            <div class="command-box">/citybuild config list</div>
+            <p style="margin-bottom: 10px; opacity: 0.8;">Alle Einstellungen anzeigen</p>
+            
+            <div class="command-box">/citybuild config get &lt;key&gt;</div>
+            <p style="margin-bottom: 10px; opacity: 0.8;">Spezifische Einstellung abrufen</p>
+            
+            <div class="command-box">/citybuild config set &lt;key&gt; &lt;value&gt;</div>
+            <p style="margin-bottom: 10px; opacity: 0.8;">Einstellung ändern</p>
+            
+            <div class="command-box">/citybuild config reload</div>
+            <p style="opacity: 0.8;">Config neu laden</p>
+        </div>
+
+        <!-- ECONOMY -->
+        <div class="section-divider">📊 ECONOMY SETTINGS</div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><em>💰</em> Starting Balance</div>
+                <div class="setting-label">Startguthaben für neue Spieler</div>
+                <div class="setting-value">10.000$</div>
+                <p style="margin-top: 10px; opacity: 0.7; font-size: 0.9em;">Befehl: /citybuild config set economy.starting_balance 15000</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>🏗️</em> Plot Prices</div>
+                <div class="setting">
+                    <span class="setting-label">Kaufpreis</span>
+                    <div class="setting-value">5.000$</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Verkaufspreis</span>
+                    <div class="setting-value">4.000$</div>
+                </div>
+                <p style="margin-top: 10px; opacity: 0.7; font-size: 0.9em;">Befehle: /citybuild config set economy.plot_buy_price 6000</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>📅</em> Daily Rewards</div>
+                <div class="setting">
+                    <span class="setting-label">Basis-Belohnung</span>
+                    <div class="setting-value">500$</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Bonus pro Streak</span>
+                    <div class="setting-value">100$</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REWARDS -->
+        <div class="section-divider">🎁 REWARD SETTINGS</div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><em>🌾</em> Farm Rewards</div>
+                <div class="setting">
+                    <span class="setting-label">Pro abgebauter Block</span>
+                    <div class="setting-value">10$</div>
+                </div>
+                <p style="margin-top: 15px; opacity: 0.7; font-size: 0.9em;">Verdient in: cityfarm Welt</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>⚔️</em> PvP Rewards</div>
+                <div class="setting">
+                    <span class="setting-label">Pro Kill</span>
+                    <div class="setting-value">50$</div>
+                </div>
+                <p style="margin-top: 15px; opacity: 0.7; font-size: 0.9em;">Verdient in: citypvp Welt</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>⏱️</em> Playtime Rewards</div>
+                <div class="setting">
+                    <span class="setting-label">Pro Stunde Online</span>
+                    <div class="setting-value">250$</div>
+                </div>
+                <p style="margin-top: 15px; opacity: 0.7; font-size: 0.9em;">Automatisch alle 60 Minuten</p>
+            </div>
+        </div>
+
+        <!-- PLOT SYSTEM -->
+        <div class="section-divider">🏗️ PLOT SYSTEM</div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><em>📍</em> Plot Settings</div>
+                <div class="setting">
+                    <span class="setting-label">Spawn Höhe (Y)</span>
+                    <div class="setting-value">-60</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Plot Größe</span>
+                    <div class="setting-value">16x16 Blocks</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Max Plots pro Spieler</span>
+                    <div class="setting-value">5</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>💳</em> Plot Taxes</div>
+                <div class="setting">
+                    <span class="setting-label">Tägliche Steuer</span>
+                    <div class="setting-value">500$</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Premium Multiplikator</span>
+                    <div class="setting-value">2x</div>
+                </div>
+                <p style="margin-top: 15px; opacity: 0.7; font-size: 0.9em;">Premium Plots kosten 2x die Steuer</p>
+            </div>
+        </div>
+
+        <!-- ENCHANTING -->
+        <div class="section-divider">✨ ENCHANTING SYSTEM</div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><em>✨</em> Enchanting Costs</div>
+                <div class="setting">
+                    <span class="setting-label">Basic Tier</span>
+                    <div class="setting-value">1.000$</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Advanced Tier</span>
+                    <div class="setting-value">5.000$</div>
+                </div>
+                <div class="setting">
+                    <span class="setting-label">Legendary Tier</span>
+                    <div class="setting-value">25.000$</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCED -->
+        <div class="section-divider">⚙️ ADVANCED FEATURES</div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><em>👑</em> Admin Features</div>
+                <ul style="margin-left: 20px; opacity: 0.8;">
+                    <li>Ban System (Temporary & Permanent)</li>
+                    <li>Warn System (Auto-Kick bei 3)</li>
+                    <li>Mute System (Zeitbasiert)</li>
+                    <li>Audit Logging (Vollständiger Trail)</li>
+                    <li>Role Management (5 Rollen)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>💾</em> Data Management</div>
+                <ul style="margin-left: 20px; opacity: 0.8;">
+                    <li>Transaction History (200/Spieler)</li>
+                    <li>Audit Log (1000 Einträge)</li>
+                    <li>Performance Cache (TTL-basiert)</li>
+                    <li>JSON Persistence (Auto-Save)</li>
+                    <li>Backup System</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><em>🎮</em> Gameplay Features</div>
+                <ul style="margin-left: 20px; opacity: 0.8;">
+                    <li>11 Professional GUIs</li>
+                    <li>9 Expansion Features</li>
+                    <li>20+ Manager Systems</li>
+                    <li>Real-time Config Changes</li>
+                    <li>Live Reward Processing</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>🏗️ CityBuild Control Panel v2.4.0 | Paper Minecraft Server</p>
+            <p style="margin-top: 10px; opacity: 0.6; font-size: 0.9em;">Für Live-Config-Änderungen verwende die In-Game Commands</p>
+        </footer>
+    </div>
+
+    <script>
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = 
+                now.toLocaleTimeString('de-DE');
+        }
+
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        console.log('%c🏗️ CityBuild v2.4.0', 'font-size: 20px; color: #00d4ff; font-weight: bold;');
+        console.log('%cControl Panel geladen! 🚀', 'font-size: 16px; color: #00ff88;');
+    </script>
+</body>
+</html>

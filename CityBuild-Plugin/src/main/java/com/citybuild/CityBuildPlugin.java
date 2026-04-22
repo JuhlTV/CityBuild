@@ -23,6 +23,7 @@ import com.citybuild.managers.TransactionManager;
 import com.citybuild.managers.PlotTaxManager;
 import com.citybuild.managers.AuditManager;
 import com.citybuild.managers.CacheManager;
+import com.citybuild.managers.ConfigManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.AdminListener;
@@ -57,6 +58,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private PlotTaxManager plotTaxManager;
     private AuditManager auditManager;
     private CacheManager cacheManager;
+    private ConfigManager configManager;
 
     @Override
     public void onEnable() {
@@ -106,6 +108,7 @@ public class CityBuildPlugin extends JavaPlugin {
         this.plotTaxManager = new PlotTaxManager(this);
         this.auditManager = new AuditManager(this);
         this.cacheManager = new CacheManager();
+        this.configManager = new ConfigManager(this);
         
         // Initialize GUI Manager
         this.guiManager = new GUIManager(this);
@@ -269,5 +272,9 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public CacheManager getCacheManager() {
         return cacheManager;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
 }

@@ -103,6 +103,8 @@ public class CityBuildCommand implements CommandExecutor {
             case "help":
                 sendHelp(player);
                 return true;
+            case "config":
+                return handleConfig(player, args);
             case "admin":
                 return handleAdmin(player, args);
             default:
@@ -804,6 +806,11 @@ public class CityBuildCommand implements CommandExecutor {
         player.sendMessage(Component.text("/citybuild bank history - View transactions", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild menu - Open main menu", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild help - Show this message", NamedTextColor.YELLOW));
+    }
+
+    private boolean handleConfig(Player player, String[] args) {
+        ConfigCommandHandler configHandler = new ConfigCommandHandler(plugin);
+        return configHandler.handleConfigCommand(player, args);
     }
 
     private boolean handleAdmin(Player player, String[] args) {
