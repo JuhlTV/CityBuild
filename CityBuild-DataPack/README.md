@@ -1,18 +1,44 @@
-# CityBuild - Vanilla Data Pack
+# CityBuild - Vanilla Data Pack v1.0
 
-A complete City Building system for **Vanilla Minecraft** using Data Packs and Commands.
+A complete City Building system for **Vanilla Minecraft 1.20.1** using Data Packs and Commands.
 
-✅ **No crashes**  
-✅ **Works with Vanilla servers**  
-✅ **No plugins/mods needed**  
-✅ **Fully functional**
+✅ **100% Stable** - No crashes or errors  
+✅ **Works with Vanilla servers** - No plugins/mods needed  
+✅ **Full error handling** - Validates all transactions  
+✅ **Data persistence** - Saves across restarts via Scoreboards  
 
-## Installation
+## Installation Guide (Physgun Server)
 
-1. Download the `CityBuild-DataPack` folder
-2. Upload to your server: `world/datapacks/`
-3. Restart server (or `/reload`)
-4. Done! Use `/function citybuild:help`
+### Step 1: Download Data Pack
+```
+Go to: https://github.com/JuhlTV/CityBuild
+Download: CityBuild-DataPack.zip (or clone repo)
+Extract to folder
+```
+
+### Step 2: Upload to Server
+```
+Physgun File Manager:
+  1. Navigate to: /home/container/world/datapacks/
+  2. Upload CityBuild-DataPack.zip
+  3. Or upload the CityBuild-DataPack folder directly
+```
+
+### Step 3: Enable Data Pack
+```
+In-Game (as OP):
+  1. /reload           (reloads all data packs)
+  2. /function citybuild:init    (initializes scoreboards)
+  3. Look for: "[CityBuild] System initialized!"
+```
+
+### Step 4: Test Installation
+```
+/function citybuild:help
+→ You should see colored command list ✓
+```
+
+If you see error, restart server and try again.
 
 ## Commands
 
