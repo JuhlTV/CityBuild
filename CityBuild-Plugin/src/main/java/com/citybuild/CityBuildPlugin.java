@@ -48,7 +48,8 @@ public class CityBuildPlugin extends JavaPlugin {
         this.shopManager = new ShopManager(this);
         this.bankManager = new BankManager(this, economyManager);
         this.dailyRewardManager = new DailyRewardManager(this);
-        Initialize GUI Manager
+        
+        // Initialize GUI Manager
         this.guiManager = new GUIManager(this);
         
         // Register commands
@@ -57,8 +58,7 @@ public class CityBuildPlugin extends JavaPlugin {
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new MobSpawnListener(worldManager.getPlotWorld()), this);
-        getServer().getPluginManager().registerEvents(new InventoryClickListener(this
-        getServer().getPluginManager().registerEvents(new MobSpawnListener(worldManager.getPlotWorld()), this);
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
         
         getLogger().info("✓ CityBuild Plugin enabled v2.0.0");
         getLogger().info("✓ Running on Paper 1.21.1");
