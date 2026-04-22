@@ -319,9 +319,9 @@ public class CityBuildCommand implements CommandExecutor {
                     
                     // Count items in inventory manually
                     int hasAmount = 0;
-                    for (ItemStack item : player.getInventory().getContents()) {
-                        if (item != null && item.getType() == mat) {
-                            hasAmount += item.getAmount();
+                    for (ItemStack stack : player.getInventory().getContents()) {
+                        if (stack != null && stack.getType() == mat) {
+                            hasAmount += stack.getAmount();
                         }
                     }
                     
