@@ -2,7 +2,7 @@ package com.citybuild.commands;
 
 import com.citybuild.CityBuildPlugin;
 import com.citybuild.managers.AdminManager;
-import com.citybuild.managers.GUIManager;
+import com.citybuild.gui.GUIManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -15,12 +15,10 @@ import org.bukkit.Material;
 public class AdminCommandHandler {
     private final CityBuildPlugin plugin;
     private final AdminManager adminManager;
-    private final GUIManager guiManager;
 
     public AdminCommandHandler(CityBuildPlugin plugin) {
         this.plugin = plugin;
         this.adminManager = plugin.getAdminManager();
-        this.guiManager = plugin.getGuiManager();
     }
 
     public boolean handleAdminCommand(Player player, String[] args) {
