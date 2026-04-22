@@ -73,6 +73,12 @@ public class CityBuildCommand implements CommandExecutor {
                 return handleDaily(player);
             case "bank":
                 return handleBank(player, args);
+            case "addmember":
+                return handleAddMember(player, args);
+            case "removemember":
+                return handleRemoveMember(player, args);
+            case "members":
+                return handleMembers(player);
             case "help":
                 sendHelp(player);
                 return true;
@@ -452,6 +458,97 @@ public class CityBuildCommand implements CommandExecutor {
         }
     }
 
+    private boolean handleAddMember(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: /citybuild addmember <player>", NamedTextColor.RED));
+            return true;
+        }
+
+        String uuid = player.getUniqueId().toString();
+        if (!plots.hasPlots(uuid)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("You don't own any plots!", NamedTextColor.RED)));
+            return true;
+        }
+
+        org.bukkit.OfflinePlayer target = org.bukkit.Bukkit.getOfflinePlayer(args[1]);
+        if (target == null) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("Player not found!", NamedTextColor.RED)));
+            return true;
+        }
+
+        int plotId = plots.getPlayerPlots(uuid).get(0);
+        String targetUuid = target.getUniqueId().toString();
+
+        if (plots.isPlotMember(targetUuid, plotId)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("This player is already a member!", NamedTextColor.YELLOW)));
+            return true;
+        }
+
+        plots.addMember(plotId, targetUuid);
+        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+            .append(Component.text("✓ Added " + target.getName() + " to your plot!", NamedTextColor.GREEN)));
+        return true;
+    }
+
+    private boolean handleRemoveMember(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: /citybuild removemember <player>", NamedTextColor.RED));
+            return true;
+        }
+
+        String uuid = player.getUniqueId().toString();
+        if (!plots.hasPlots(uuid)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("You don't own any plots!", NamedTextColor.RED)));
+            return true;
+        }
+
+        org.bukkit.OfflinePlayer target = org.bukkit.Bukkit.getOfflinePlayer(args[1]);
+        if (target == null) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("Player not found!", NamedTextColor.RED)));
+            return true;
+        }
+
+        int plotId = plots.getPlayerPlots(uuid).get(0);
+        String targetUuid = target.getUniqueId().toString();
+
+        plots.removeMember(plotId, targetUuid);
+        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+            .append(Component.text("✓ Removed " + target.getName() + " from your plot!", NamedTextColor.GREEN)));
+        return true;
+    }
+
+    private boolean handleMembers(Player player) {
+        String uuid = player.getUniqueId().toString();
+        if (!plots.hasPlots(uuid)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("You don't own any plots!", NamedTextColor.RED)));
+            return true;
+        }
+
+        int plotId = plots.getPlayerPlots(uuid).get(0);
+        java.util.List<String> members = plots.getPlotMembers(plotId);
+
+        player.sendMessage(Component.text("=== Plot Members ===", NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+        player.sendMessage(Component.text("You (owner)", NamedTextColor.GOLD));
+
+        if (members.isEmpty()) {
+            player.sendMessage(Component.text("No members added yet", NamedTextColor.GRAY));
+        } else {
+            for (String memberUuid : members) {
+                org.bukkit.OfflinePlayer member = org.bukkit.Bukkit.getOfflinePlayer(java.util.UUID.fromString(memberUuid));
+                String name = member.getName() != null ? member.getName() : memberUuid.substring(0, 8);
+                player.sendMessage(Component.text("  • " + name, NamedTextColor.GREEN));
+            }
+        }
+
+        return true;
+    }
+
     private void sendHelp(Player player) {
         player.sendMessage(Component.text("=== CityBuild Commands ===", NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
         player.sendMessage(Component.text("--- Economy ---", NamedTextColor.AQUA));
@@ -463,6 +560,9 @@ public class CityBuildCommand implements CommandExecutor {
         player.sendMessage(Component.text("/citybuild buy - Buy a plot ($" + plots.getPlotBuyPrice() + ")", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild sell - Sell a plot ($" + plots.getPlotSellPrice() + ")", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild info - View your info", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild addmember <player> - Add member to plot", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild removemember <player> - Remove member", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild members - List plot members", NamedTextColor.YELLOW));
         
         player.sendMessage(Component.text("--- Shop ---", NamedTextColor.AQUA));
         player.sendMessage(Component.text("/citybuild shop list - View all items", NamedTextColor.YELLOW));
