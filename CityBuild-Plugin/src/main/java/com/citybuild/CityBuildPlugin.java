@@ -4,6 +4,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.citybuild.managers.EconomyManager;
 import com.citybuild.managers.PlotManager;
+import com.citybuild.managers.WorldManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 
@@ -12,6 +13,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private static CityBuildPlugin instance;
     private EconomyManager economyManager;
     private PlotManager plotManager;
+    private WorldManager worldManager;
 
     @Override
     public void onEnable() {
@@ -25,9 +27,12 @@ public class CityBuildPlugin extends JavaPlugin {
             getDataFolder().mkdirs();
         }
         
+        // Initialize World Manager first (creates worlds)
+        this.worldManager = new WorldManager(this);
+        
         // Initialize managers
         this.economyManager = new EconomyManager(this);
-        this.plotManager = new PlotManager(this);
+        this.plotManager = new PlotManager(this, worldManager.getPlotWorld());
         
         // Register commands
         getCommand("citybuild").setExecutor(new CityBuildCommand(this));
@@ -37,6 +42,7 @@ public class CityBuildPlugin extends JavaPlugin {
         
         getLogger().info("✓ CityBuild Plugin enabled v1.0.0");
         getLogger().info("✓ Running on Paper 1.21.1");
+        getLogger().info("✓ Worlds created: cityplot, cityfarm, citypvp");
     }
 
     @Override
@@ -60,5 +66,9 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public PlotManager getPlotManager() {
         return plotManager;
+    }
+
+    public WorldManager getWorldManager() {
+        return worldManager;
     }
 }

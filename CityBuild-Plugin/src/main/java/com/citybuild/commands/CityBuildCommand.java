@@ -3,9 +3,11 @@ package com.citybuild.commands;
 import com.citybuild.CityBuildPlugin;
 import com.citybuild.managers.EconomyManager;
 import com.citybuild.managers.PlotManager;
+import com.citybuild.managers.WorldManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -47,6 +49,12 @@ public class CityBuildCommand implements CommandExecutor {
                 return handleInfo(player);
             case "leaderboard":
                 return handleLeaderboard(player);
+            case "tpplot":
+                return handleTeleportPlot(player);
+            case "tpfarm":
+                return handleTeleportFarm(player);
+            case "tppvp":
+                return handleTeleportPvp(player);
             case "help":
                 sendHelp(player);
                 return true;
@@ -147,6 +155,46 @@ public class CityBuildCommand implements CommandExecutor {
         return true;
     }
 
+    private boolean handleTeleportPlot(Player player) {
+        String uuid = player.getUniqueId().toString();
+        
+        if (!plots.hasPlots(uuid)) {
+            player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                    .append(Component.text("❌ You don't own any plots! Buy one first.", NamedTextColor.RED)));
+            return true;
+        }
+        
+        Location plotLocation = plots.getFirstPlotLocation(uuid);
+        player.teleport(plotLocation);
+        
+        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("✓ Teleported to your plot!", NamedTextColor.GREEN)));
+        
+        return true;
+    }
+
+    private boolean handleTeleportFarm(Player player) {
+        WorldManager worldManager = plugin.getWorldManager();
+        Location farmSpawn = worldManager.getFarmWorld().getSpawnLocation();
+        
+        player.teleport(farmSpawn);
+        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("✓ Teleported to Farm World!", NamedTextColor.GREEN)));
+        
+        return true;
+    }
+
+    private boolean handleTeleportPvp(Player player) {
+        WorldManager worldManager = plugin.getWorldManager();
+        Location pvpSpawn = worldManager.getPvpWorld().getSpawnLocation();
+        
+        player.teleport(pvpSpawn);
+        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("✓ Teleported to PVP World!", NamedTextColor.GREEN)));
+        
+        return true;
+    }
+
     private boolean handleAdmin(Player player, String[] args) {
         if (args.length < 2) {
             player.sendMessage(Component.text("[CityBuild] Admin commands:", NamedTextColor.BLUE));
@@ -178,6 +226,9 @@ public class CityBuildCommand implements CommandExecutor {
         player.sendMessage(Component.text("/citybuild balance - Check your balance", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild info - View your info", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild leaderboard - View top players", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild tpplot - Teleport to your plot", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild tpfarm - Teleport to Farm World", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild tppvp - Teleport to PVP World", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild help - Show this message", NamedTextColor.YELLOW));
     }
 }

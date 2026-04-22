@@ -1,12 +1,15 @@
 # CityBuild Plugin - Paper 1.21.1
 
-Ein **vollständiges City-Building Plugin** für Paper Minecraft Server mit Economy, Plots, und Leaderboard!
+Ein **vollständiges City-Building Plugin** für Paper Minecraft Server mit Economy, Plots, Multi-World System, und Leaderboard!
 
 ✅ **Für Paper 1.21.1**  
-✅ **JSON Datenbank**  
+✅ **3 Welten** (Plot-Welt, Farm-Welt, PVP-Welt)  
+✅ **Flache Map für Plots**  
 ✅ **Economy System**  
-✅ **Plot Management**  
+✅ **Plot Management mit Grid-System**  
 ✅ **Leaderboard**  
+✅ **World Teleportation**  
+✅ **JSON Datenbank**  
 ✅ **Admin Tools**  
 
 ---
@@ -39,24 +42,77 @@ In-Game: /citybuild help
 Should show all commands ✓
 ```
 
+> **⚠️ Wichtig:** Nach dem Upload wird das Plugin automatisch die 3 Welten erstellen!
+
+---
+
+## 🌍 Welten
+
+Das Plugin erstellt automatisch **3 verschiedene Welten**:
+
+| Welt | Name | Typ | Beschreibung |
+|------|------|-----|-------------|
+| **Plot-Welt** | `cityplot` | Flat | Flache Map für Plots - 16x16 pro Plot |
+| **Farm-Welt** | `cityfarm` | Normal | Für Ressourcenabbau und Farmen |
+| **PVP-Welt** | `citypvp` | Normal | Für PVP-Kämpfe |
+
 ---
 
 ## 🎮 Commands
 
 ### Player Commands
 ```
-/citybuild buy           Buy a plot ($5000)
-/citybuild sell          Sell a plot ($4000)
-/citybuild balance       Check your balance
-/citybuild info          View your info (balance + plots)
-/citybuild leaderboard   Top 10 richest players
-/citybuild help          Show all commands
+/citybuild buy              Buy a plot ($5000)
+/citybuild sell             Sell a plot ($4000)
+/citybuild balance          Check your balance
+/citybuild info             View your info (balance + plots)
+/citybuild leaderboard      Top 10 richest players
+```
+
+### World Teleport Commands
+```
+/citybuild tpplot           Teleport to your plot
+/citybuild tpfarm           Teleport to Farm World
+/citybuild tppvp            Teleport to PVP World
+```
+
+### General Commands
+```
+/citybuild help             Show all commands
 ```
 
 ### Admin Commands (OP Only)
 ```
-/citybuild admin reset   Reset all data
-/citybuild admin stats   Show system statistics
+/citybuild admin reset      Reset all data
+/citybuild admin stats      Show system statistics
+```
+
+---
+
+## � Plot System
+
+### Grid-basiertes Plot Spawning
+Jeder Spieler bekommt einen **individuellen Plot** auf der flachen Map `cityplot`:
+
+- **Größe:** 16x16 Blöcke pro Plot
+- **Abstand:** 2 Blöcke Spacing zwischen Plots
+- **Layout:** 10 Plots pro Reihe (Grid)
+- **Höhe:** Y=65 (bereit zum Bauen)
+
+```
+Grid Example (Top View):
+[Plot 1] [Plot 2] [Plot 3] ...
+[Plot 11] [Plot 12] [Plot 13] ...
+[Plot 21] [Plot 22] [Plot 23] ...
+```
+
+### Plot Locations
+```
+Plot ID 1: X=8, Z=8 (Center)
+Plot ID 2: X=26, Z=8
+Plot ID 3: X=44, Z=8
+Plot ID 11: X=8, Z=26
+...
 ```
 
 ---
@@ -70,7 +126,7 @@ Should show all commands ✓
     "uuid": "player-uuid",
     "balance": 10000,
     "lastTransaction": 1234567890,
-    "plots": 0
+    "plots": 1
   }
 }
 ```
@@ -93,6 +149,16 @@ economy:
   starting_balance: 10000
   plot_buy_price: 5000
   plot_sell_price: 4000
+
+worlds:
+  plot_world: "cityplot"
+  farm_world: "cityfarm"
+  pvp_world: "citypvp"
+
+plots:
+  size: 16
+  spacing: 2
+  plots_per_row: 10
 ```
 
 ---
@@ -104,12 +170,21 @@ economy:
 - ✅ Starting balance: $10,000
 - ✅ Transaction logging
 - ✅ Player leaderboard
+- ✅ Join welcome message
 
 ### Plots
 - ✅ Buy plots: $5,000
 - ✅ Sell plots: $4,000
 - ✅ Track owned plots
 - ✅ Unlimited plots per player
+- ✅ Automatic grid spawning
+
+### World System
+- ✅ 3 Worlds (Plot, Farm, PVP)
+- ✅ Auto-creation on plugin start
+- ✅ Flat plot world
+- ✅ Normal farm/pvp worlds
+- ✅ Teleport commands
 
 ### Leaderboard
 - ✅ Top 10 richest players
@@ -120,6 +195,7 @@ economy:
 - ✅ Reset all data
 - ✅ System statistics
 - ✅ Data persistence
+- ✅ OP-only commands
 
 ---
 

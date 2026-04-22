@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -20,9 +22,15 @@ public class PlotManager {
     private final int plotBuyPrice;
     private final int plotSellPrice;
     private int nextPlotId = 1;
+    
+    // Plot Spawning System
+    private final int PLOT_SIZE = 16; // 16x16 blocks per plot
+    private final int PLOT_SPACING = 2; // 2 blocks spacing between plots
+    private World plotWorld;
 
-    public PlotManager(JavaPlugin plugin) {
+    public PlotManager(JavaPlugin plugin, World plotWorld) {
         this.plugin = plugin;
+        this.plotWorld = plotWorld;
         this.dataFile = new File(plugin.getDataFolder(), "data/plots.json");
         this.playerPlots = new HashMap<>();
         this.plotBuyPrice = plugin.getConfig().getInt("economy.plot_buy_price", 5000);
@@ -70,6 +78,49 @@ public class PlotManager {
 
     public int getTotalPlots() {
         return playerPlots.values().stream().mapToInt(List::size).sum();
+    }
+    
+    /**
+     * Calculate plot spawn location based on plot ID
+     * Uses grid system: 16x16 blocks per plot with 2 block spacing
+     */
+    public Location getPlotSpawn(int plotId) {
+        int index = plotId - 1;
+        int plotsPerRow = 10; // 10 plots per row
+        
+        int row = index / plotsPerRow;
+        int col = index % plotsPerRow;
+        
+        int plotDistance = PLOT_SIZE + PLOT_SPACING;
+        int x = col * plotDistance;
+        int z = row * plotDistance;
+        
+        return new Location(plotWorld, x + 8, 65, z + 8); // Center of plot at Y=65
+    }
+    
+    /**
+     * Get all plot spawn locations for a player
+     */
+    public List<Location> getPlayerPlotLocations(String playerUuid) {
+        List<Integer> plots = getPlayerPlots(playerUuid);
+        List<Location> locations = new ArrayList<>();
+        
+        for (Integer plotId : plots) {
+            locations.add(getPlotSpawn(plotId));
+        }
+        
+        return locations;
+    }
+    
+    /**
+     * Teleport player to first plot location
+     */
+    public Location getFirstPlotLocation(String playerUuid) {
+        List<Integer> plots = getPlayerPlots(playerUuid);
+        if (plots.isEmpty()) {
+            return null;
+        }
+        return getPlotSpawn(plots.get(0));
     }
 
     private void loadData() {
