@@ -44,9 +44,13 @@ public class EconomyCommand implements CommandExecutor {
                 }
                 try {
                     double amount = Double.parseDouble(args[2]);
+                    if (amount <= 0) {
+                        player.sendMessage("§cAmount must be positive!");
+                        return false;
+                    }
                     economyManager.payPlayer(player, target, amount);
                 } catch (NumberFormatException e) {
-                    player.sendMessage("§cInvalid amount!");
+                    player.sendMessage("§cInvalid amount! Use a number like 100.50");
                 }
                 return true;
             case "check":

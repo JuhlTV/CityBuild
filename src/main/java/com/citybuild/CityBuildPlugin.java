@@ -6,8 +6,10 @@ import com.citybuild.features.economy.EconomyManager;
 import com.citybuild.features.terrain.TerrainManager;
 import com.citybuild.features.admin.AdminManager;
 import com.citybuild.commands.*;
+import java.util.Objects;
 
 public class CityBuildPlugin extends JavaPlugin {
+    private static CityBuildPlugin instance;
     
     private PlotManager plotManager;
     private EconomyManager economyManager;
@@ -16,21 +18,28 @@ public class CityBuildPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
         getLogger().info("╔════════════════════════════════╗");
         getLogger().info("║     CityBuild Plugin v1.0      ║");
         getLogger().info("║   City Building System Loaded   ║");
         getLogger().info("╚════════════════════════════════╝");
 
-        // Initialize all managers
-        initializeManagers();
-        
-        // Register commands
-        registerCommands();
-        
-        // Register event listeners
-        registerListeners();
-        
-        getLogger().info("✓ All systems initialized successfully!");
+        try {
+            // Initialize all managers
+            initializeManagers();
+            
+            // Register commands
+            registerCommands();
+            
+            // Register event listeners
+            registerListeners();
+            
+            getLogger().info("✓ All systems initialized successfully!");
+        } catch (Exception e) {
+            getLogger().severe("Failed to initialize CityBuild: " + e.getMessage());
+            e.printStackTrace();
+            setEnabled(false);
+        }
     }
 
     @Override
@@ -54,11 +63,11 @@ public class CityBuildPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        this.getCommand("plot").setExecutor(new PlotCommand(plotManager));
-        this.getCommand("economy").setExecutor(new EconomyCommand(economyManager));
-        this.getCommand("terrain").setExecutor(new TerrainCommand(terrainManager));
-        this.getCommand("admin").setExecutor(new AdminCommand(adminManager, plotManager));
-        this.getCommand("shop").setExecutor(new ShopCommand(economyManager));
+        Objects.requireNonNull(getCommand("plot"), "plot command not found in plugin.yml").setExecutor(new PlotCommand(plotManager));
+        Objects.requireNonNull(getCommand("economy"), "economy command not found in plugin.yml").setExecutor(new EconomyCommand(economyManager));
+        Objects.requireNonNull(getCommand("terrain"), "terrain command not found in plugin.yml").setExecutor(new TerrainCommand(terrainManager));
+        Objects.requireNonNull(getCommand("admin"), "admin command not found in plugin.yml").setExecutor(new AdminCommand(adminManager, plotManager));
+        Objects.requireNonNull(getCommand("shop"), "shop command not found in plugin.yml").setExecutor(new ShopCommand(economyManager));
         
         getLogger().info("✓ Commands registered");
     }
@@ -83,5 +92,9 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public AdminManager getAdminManager() {
         return adminManager;
+    }
+    
+    public static CityBuildPlugin getInstance() {
+        return instance;
     }
 }

@@ -16,16 +16,19 @@ public class EconomyManager {
     }
 
     public void addBalance(Player player, double amount) {
+        if (amount < 0) throw new IllegalArgumentException("Amount cannot be negative");
         String uuid = player.getUniqueId().toString();
-        playerBalance.put(uuid, getBalance(player) + amount);
-        player.sendMessage("§a+ $" + amount);
+        double newBalance = getBalance(player) + amount;
+        playerBalance.put(uuid, newBalance);
+        player.sendMessage("§a+ $" + String.format("%.2f", amount));
     }
 
     public boolean removeBalance(Player player, double amount) {
+        if (amount < 0) throw new IllegalArgumentException("Amount cannot be negative");
         if (getBalance(player) >= amount) {
             String uuid = player.getUniqueId().toString();
             playerBalance.put(uuid, getBalance(player) - amount);
-            player.sendMessage("§c- $" + amount);
+            player.sendMessage("§c- $" + String.format("%.2f", amount));
             return true;
         }
         player.sendMessage("§cInsufficient funds!");
@@ -38,10 +41,16 @@ public class EconomyManager {
     }
 
     public boolean payPlayer(Player sender, Player receiver, double amount) {
+        if (amount <= 0) {
+            sender.sendMessage("§cAmount must be positive!");
+            return false;
+        }
         if (removeBalance(sender, amount)) {
             addBalance(receiver, amount);
-            sender.sendMessage("§a✓ Sent $" + amount + " to " + receiver.getName());
-            receiver.sendMessage("§a✓ Received $" + amount + " from " + sender.getName());
+            String formatted = String.format("%.2f", amount);
+            sender.sendMessage("§a✓ Sent $" + formatted + " to " + receiver.getName());
+            receiver.sendMessage("§a✓ Received $" + formatted + " from " + sender.getName());
+            plugin.getLogger().info(sender.getName() + " sent $" + formatted + " to " + receiver.getName());
             return true;
         }
         return false;

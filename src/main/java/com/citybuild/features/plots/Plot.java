@@ -11,6 +11,10 @@ public class Plot {
     private String biome;
 
     public Plot(String plotId, UUID ownerUUID, double price) {
+        if (plotId == null || plotId.trim().isEmpty()) throw new IllegalArgumentException("Plot ID cannot be null or empty");
+        if (ownerUUID == null) throw new IllegalArgumentException("Owner UUID cannot be null");
+        if (price < 0) throw new IllegalArgumentException("Price cannot be negative");
+        
         this.plotId = plotId;
         this.ownerUUID = ownerUUID;
         this.price = price;
@@ -44,7 +48,7 @@ public class Plot {
 
     @Override
     public String toString() {
-        return String.format("Plot [ID: %s, Owner: %s, Price: $%.2f, Biome: %s]", 
+        return String.format("§6Plot [§eID: %s§6, Owner: %s§6, Price: §a$%.2f§6, Biome: %s§6]", 
             plotId, ownerUUID, price, biome);
     }
 }

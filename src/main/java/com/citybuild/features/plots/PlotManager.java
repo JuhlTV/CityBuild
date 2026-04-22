@@ -1,8 +1,5 @@
 package com.citybuild.features.plots;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import java.util.*;
@@ -20,8 +17,9 @@ public class PlotManager {
         loadAllData();
     }
 
-    public boolean buyPlot(Player player, int price) {
-        if (playerPlots.containsKey(player.getUniqueId().toString())) {
+    public boolean buyPlot(Player player, double price) {
+        String uuid = player.getUniqueId().toString();
+        if (playerPlots.containsKey(uuid)) {
             player.sendMessage("§cYou already own a plot!");
             return false;
         }
@@ -30,23 +28,26 @@ public class PlotManager {
         Plot plot = new Plot(plotId, player.getUniqueId(), price);
         
         plots.put(plotId, plot);
-        playerPlots.put(player.getUniqueId().toString(), plotId);
+        playerPlots.put(uuid, plotId);
         
         player.sendMessage("§a✓ Plot purchased! ID: " + plotId);
+        plugin.getLogger().info(player.getName() + " bought plot " + plotId);
         return true;
     }
 
-    public boolean sellPlot(Player player, int sellPrice) {
-        String plotId = playerPlots.get(player.getUniqueId().toString());
+    public boolean sellPlot(Player player, double sellPrice) {
+        String uuid = player.getUniqueId().toString();
+        String plotId = playerPlots.get(uuid);
         if (plotId == null) {
             player.sendMessage("§cYou don't own a plot!");
             return false;
         }
 
         plots.remove(plotId);
-        playerPlots.remove(player.getUniqueId().toString());
+        playerPlots.remove(uuid);
         
-        player.sendMessage("§a✓ Plot sold for $" + sellPrice);
+        player.sendMessage("§a✓ Plot sold for $" + String.format("%.2f", sellPrice));
+        plugin.getLogger().info(player.getName() + " sold plot " + plotId);
         return true;
     }
 
