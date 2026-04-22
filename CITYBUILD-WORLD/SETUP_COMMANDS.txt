@@ -1,0 +1,86 @@
+# Setup Script für CityBuild Vanilla World
+# Kopiere jeden Befehl einzeln in die Chat-Eingabe und drücke Enter
+
+# ============================================================
+# PHASE 1: SETUP (Als OP ausführen)
+# ============================================================
+
+# Gamerules
+/gamerule commandBlockOutput true
+/gamerule commandBlockRedstoneOutput true
+/gamerule sendCommandFeedback true
+/gamerule showDeathMessages true
+/gamerule doMobSpawning false
+/difficulty peaceful
+
+# World Spawn setzen
+/setworldspawn 0 64 0
+
+# ============================================================
+# PHASE 2: SCOREBOARDS (Automatisch erstellt)
+# ============================================================
+
+# Economy Scoreboards
+/scoreboard objectives add cb_balance dummy "CityBuild Balance"
+/scoreboard objectives add cb_plots dummy "Player Plots"
+/scoreboard objectives add cb_admin dummy "Admin Stats"
+
+# Default Balance setzen
+/scoreboard players set @a cb_balance 10000
+/scoreboard players set @a cb_plots 0
+
+# ============================================================
+# PHASE 3: INITIALIZATION (Funktionen laden)
+# ============================================================
+
+# Init-Funktion
+/function citybuild:init
+
+# Load nachricht
+/function citybuild:load
+
+# ============================================================
+# PHASE 4: TEST COMMANDS
+# ============================================================
+
+# Test: Help anzeigen
+/function citybuild:help
+
+# Test: Balance checken
+/function citybuild:economy/balance
+
+# Test: Plot kaufen
+/function citybuild:plot/buy
+
+# Test: Balance nach Kauf
+/function citybuild:economy/balance
+
+# Test: Plot Info
+/function citybuild:plot/info
+
+# ============================================================
+# PHASE 5: SETUP KOMPLETT
+# ============================================================
+
+# Wenn alle Commands grün waren, ist das Setup FERTIG!
+# Du kannst jetzt Command Blocks bauen und die Functions einfügen.
+
+# Beispiel Command Block:
+# Type: Repeat
+# Conditional: Unconditional
+# Command: /function citybuild:plot/buy
+
+# ============================================================
+# ZUSÄTZ: Command Block Vorlagen
+# ============================================================
+
+# Kopiere in Command Block 1 (Plot Buy):
+# scoreboard players remove @s cb_balance 5000
+# scoreboard players add @s cb_plots 1
+# tellraw @s {"text":"Plot purchased!","color":"green"}
+
+# Kopiere in Command Block 2 (Economy):
+# tellraw @s {"text":"Balance: $","color":"gold","extra":[{"score":{"name":"@s","objective":"cb_balance"},"color":"aqua"}]}
+
+# Kopiere in Command Block 3 (Admin Stats):
+# tellraw @s {"text":"System ACTIVE","color":"green"}
