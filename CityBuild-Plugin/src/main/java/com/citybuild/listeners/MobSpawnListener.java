@@ -14,12 +14,10 @@ public class MobSpawnListener implements Listener {
 
     @EventHandler
     public void onMobSpawn(CreatureSpawnEvent event) {
-        // Cancel all mob spawns in the plot world (except players)
+        // Block ALL mobs/creatures in plot world (animals, monsters, etc)
         if (event.getLocation().getWorld() == plotWorld) {
-            // Allow only certain spawn reasons (like player spawning eggs)
-            if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.CUSTOM &&
-                event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG &&
-                event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.COMMAND) {
+            // Only allow spawn eggs (player manually spawning)
+            if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
                 event.setCancelled(true);
             }
         }
