@@ -26,8 +26,8 @@ public class AdminCommandHandler {
     public boolean handleAdminCommand(Player player, String[] args) {
         String uuid = player.getUniqueId().toString();
 
-        // Check if admin (level 2+)
-        if (!adminManager.hasPermission(uuid, AdminManager.Role.MODERATOR)) {
+        // Check if admin (level 2+) - OPs bypass this check
+        if (!player.isOp() && !adminManager.hasPermission(uuid, AdminManager.Role.MODERATOR)) {
             player.sendMessage(Component.text("❌ Du hast keine Admin-Rechte!", NamedTextColor.RED));
             return true;
         }
