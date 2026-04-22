@@ -8,6 +8,7 @@ import com.citybuild.managers.WorldManager;
 import com.citybuild.managers.ShopManager;
 import com.citybuild.managers.BankManager;
 import com.citybuild.managers.DailyRewardManager;
+import com.citybuild.managers.AuctionHouseManager;
 import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.listeners.PlayerListener;
 import com.citybuild.listeners.MobSpawnListener;
@@ -25,6 +26,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private BankManager bankManager;
     private DailyRewardManager dailyRewardManager;
     private GUIManager guiManager;
+    private AuctionHouseManager auctionHouseManager;
 
     @Override
     public void onEnable() {
@@ -48,6 +50,7 @@ public class CityBuildPlugin extends JavaPlugin {
         // Initialize advanced features
         this.shopManager = new ShopManager(this);
         this.bankManager = new BankManager(this, economyManager);
+        this.auctionHouseManager = new AuctionHouseManager(this);
         this.dailyRewardManager = new DailyRewardManager(this);
         
         // Initialize GUI Manager
@@ -82,6 +85,9 @@ public class CityBuildPlugin extends JavaPlugin {
         if (dailyRewardManager != null) {
             dailyRewardManager.saveData();
         }
+        if (auctionHouseManager != null) {
+            auctionHouseManager.saveData();
+        }
         getLogger().info("✓ CityBuild Plugin disabled");
     }
 
@@ -115,5 +121,9 @@ public class CityBuildPlugin extends JavaPlugin {
 
     public GUIManager getGUIManager() {
         return guiManager;
+
+    public AuctionHouseManager getAuctionHouseManager() {
+        return auctionHouseManager;
+    }
     }
 }

@@ -74,11 +74,40 @@ public class EconomyManager {
         setBalance(player, current + amount);
     }
 
+    public void addBalance(String playerUuid, long amount) {
+        long current = getBalance(playerUuid);
+        setBalance(playerUuid, current + amount);
+    }
+
     public void removeBalance(Player player, long amount) {
         long current = getBalance(player);
         if (current >= amount) {
             setBalance(player, current - amount);
         }
+    }
+
+    public void removeBalance(String playerUuid, long amount) {
+        long current = getBalance(playerUuid);
+        if (current >= amount) {
+            setBalance(playerUuid, current - amount);
+        }
+    }
+
+    public long getBalance(String playerUuid) {
+        if (!playerData.containsKey(playerUuid)) {
+            playerData.put(playerUuid, new PlayerData(playerUuid, 10000, System.currentTimeMillis(), 0));
+        }
+        return playerData.get(playerUuid).balance;
+    }
+
+    public void setBalance(String playerUuid, long amount) {
+        if (!playerData.containsKey(playerUuid)) {
+            playerData.put(playerUuid, new PlayerData(playerUuid, 10000, System.currentTimeMillis(), 0));
+        }
+        PlayerData data = playerData.get(playerUuid);
+        data.balance = amount;
+        data.lastTransaction = System.currentTimeMillis();
+        saveData();
     }
 
     public boolean canAfford(Player player, long amount) {
