@@ -12,6 +12,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 
+import java.util.UUID;
+
 public class AdminCommandHandler {
     private final CityBuildPlugin plugin;
     private final AdminManager adminManager;
@@ -145,11 +147,11 @@ public class AdminCommandHandler {
         ));
 
         if (adminManager.shouldBeBanned(targetUuid)) {
-            Bukkit.broadcastMessage(Component.text(
+            Bukkit.broadcast(Component.text(
                 "🚫 " + target.getName() + " wurde automatisch entfernt (3 Verwarnungen)!",
                 NamedTextColor.RED
             ));
-            target.kickPlayer(Component.text("Du hast zu viele Verwarnungen erhalten!", NamedTextColor.RED));
+            target.kickPlayer("Du hast zu viele Verwarnungen erhalten!");
             adminManager.resetWarnings(targetUuid);
         }
     }
@@ -265,7 +267,7 @@ public class AdminCommandHandler {
 
         String reason = args.length > 3 ? args[3] : "Kicked by Admin";
         adminManager.logAction(playerUuid, "Kicked " + target.getName() + " (" + reason + ")");
-        target.kickPlayer(Component.text("🚫 Du wurdest gekickt! Grund: " + reason, NamedTextColor.RED));
+        target.kickPlayer("🚫 Du wurdest gekickt! Grund: " + reason);
         player.sendMessage(Component.text("✓ " + target.getName() + " wurde gekickt!", NamedTextColor.GREEN));
     }
 

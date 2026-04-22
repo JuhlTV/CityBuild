@@ -26,10 +26,14 @@ public class EconomyManager {
         public int plots;
         
         public PlayerData(String uuid) {
+            this(uuid, 10000L, System.currentTimeMillis(), 0);
+        }
+
+        public PlayerData(String uuid, long balance, long lastTransaction, int plots) {
             this.uuid = uuid;
-            this.balance = 10000;
-            this.lastTransaction = System.currentTimeMillis();
-            this.plots = 0;
+            this.balance = balance;
+            this.lastTransaction = lastTransaction;
+            this.plots = plots;
         }
     }
 
@@ -112,6 +116,10 @@ public class EconomyManager {
 
     public boolean canAfford(Player player, long amount) {
         return getBalance(player) >= amount;
+    }
+
+    public boolean canAfford(String playerUuid, long amount) {
+        return getBalance(playerUuid) >= amount;
     }
 
     public List<Map.Entry<String, Long>> getLeaderboard(int limit) {

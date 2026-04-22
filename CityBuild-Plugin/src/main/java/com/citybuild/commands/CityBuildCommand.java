@@ -317,21 +317,6 @@ public class CityBuildCommand implements CommandExecutor {
                 player.setInvulnerable(false);
             }
         }, seconds * 20L); // Convert seconds to ticks
-
-        switch (args[1].toLowerCase()) {
-            case "reset":
-                // Reset logic would go here
-                player.sendMessage(Component.text("[CityBuild] Data reset!", NamedTextColor.RED));
-                return true;
-            case "stats":
-                player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
-                        .append(Component.text("System Statistics:", NamedTextColor.GOLD)));
-                player.sendMessage(Component.text("  Total Plots: " + plots.getTotalPlots(), NamedTextColor.YELLOW));
-                player.sendMessage(Component.text("  Version: 2.0.0", NamedTextColor.YELLOW));
-                return true;
-            default:
-                return false;
-        }
     }
 
     private boolean handleShop(Player player, String[] args) {

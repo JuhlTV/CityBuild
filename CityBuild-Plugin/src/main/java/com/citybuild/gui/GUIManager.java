@@ -445,7 +445,7 @@ public class GUIManager {
     }
 
     // ==================== HELPER METHOD ====================
-    private ItemStack createItem(Material material, String name, NamedTextColor color, Component... lore) {
+    public static ItemStack createItem(Material material, String name, NamedTextColor color, Component... lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
