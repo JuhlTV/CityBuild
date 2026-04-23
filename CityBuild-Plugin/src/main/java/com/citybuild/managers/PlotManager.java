@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.citybuild.model.PlotData;
+import com.citybuild.utils.PlotGenerator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -28,6 +30,7 @@ public class PlotManager {
     private final File dataFile;
     private final Map<String, List<Integer>> playerPlots;
     private final Map<Integer, List<String>> plotMembers; // Plot ID -> List of member UUIDs
+    private final Map<Integer, PlotData> plots; // PlotID -> PlotData (new system)
     private final int plotBuyPrice;
     private final int plotSellPrice;
     private int nextPlotId = 1;
@@ -43,6 +46,7 @@ public class PlotManager {
         this.dataFile = new File(plugin.getDataFolder(), "data/plots.json");
         this.playerPlots = new HashMap<>();
         this.plotMembers = new HashMap<>();
+        this.plots = new HashMap<>();
         this.plotBuyPrice = plugin.getConfig().getInt("economy.plot_buy_price", 5000);
         this.plotSellPrice = plugin.getConfig().getInt("economy.plot_sell_price", 4000);
         
@@ -145,11 +149,14 @@ public class PlotManager {
             if (json.has("players")) {
                 JsonObject playersJson = json.getAsJsonObject("players");
                 playersJson.entrySet().forEach(entry -> {
-                    List<Integer> plots = new ArrayList<>();
+                    List<Integer> plotIds = new ArrayList<>();
                     JsonArray array = entry.getValue().getAsJsonArray();
-                    array.forEach(el -> plots.add(el.getAsInt()));
-                    playerPlots.put(entry.getKey(), plots);
-                    nextPlotId = Math.max(nextPlotId, plots.isEmpty() ? 1 : plots.stream().max(Integer::compare).orElse(0) + 1);
+                    array.forEach(el -> {
+                        int id = el.getAsInt();
+                        plotIds.add(id);
+                        nextPlotId = Math.max(nextPlotId, id + 1);
+                    });
+                    playerPlots.put(entry.getKey(), plotIds);
                 });
             }
             
@@ -163,8 +170,43 @@ public class PlotManager {
                     plotMembers.put(Integer.parseInt(entry.getKey()), members);
                 });
             }
+
+            // Load PlotData objects
+            if (json.has("plots")) {
+                JsonObject plotsJson = json.getAsJsonObject("plots");
+                plotsJson.entrySet().forEach(entry -> {
+                    try {
+                        int plotId = Integer.parseInt(entry.getKey());
+                        JsonObject plotObj = entry.getValue().getAsJsonObject();
+
+                        PlotData plot = new PlotData(
+                                plotId,
+                                plotObj.get("ownerUuid").getAsString(),
+                                plotObj.get("cornerX").getAsInt(),
+                                plotObj.get("cornerZ").getAsInt()
+                        );
+
+                        plot.setSizeX(plotObj.get("sizeX").getAsInt());
+                        plot.setSizeZ(plotObj.get("sizeZ").getAsInt());
+                        plot.setPremium(plotObj.get("isPremium").getAsBoolean());
+                        if (plotObj.has("biome")) {
+                            plot.setBiome(plotObj.get("biome").getAsString());
+                        }
+
+                        // Load members
+                        if (plotObj.has("members")) {
+                            JsonArray membersArray = plotObj.getAsJsonArray("members");
+                            membersArray.forEach(el -> plot.addMember(el.getAsString()));
+                        }
+
+                        plots.put(plotId, plot);
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("Failed to load plot " + entry.getKey() + ": " + e.getMessage());
+                    }
+                });
+            }
             
-            plugin.getLogger().info("✓ Loaded plots from database");
+            plugin.getLogger().info("✓ Loaded " + plots.size() + " plots from database");
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to load plot data: " + e.getMessage());
         }
@@ -178,8 +220,8 @@ public class PlotManager {
             
             // Save player plots
             JsonObject playersJson = new JsonObject();
-            playerPlots.forEach((uuid, plots) -> {
-                playersJson.add(uuid, gson.toJsonTree(plots));
+            playerPlots.forEach((uuid, plotIds) -> {
+                playersJson.add(uuid, gson.toJsonTree(plotIds));
             });
             json.add("players", playersJson);
             
@@ -189,6 +231,31 @@ public class PlotManager {
                 membersJson.add(String.valueOf(plotId), gson.toJsonTree(members));
             });
             json.add("members", membersJson);
+
+            // Save PlotData objects
+            JsonObject plotsJson = new JsonObject();
+            plots.forEach((plotId, plot) -> {
+                JsonObject plotObj = new JsonObject();
+                plotObj.addProperty("plotId", plot.getPlotId());
+                plotObj.addProperty("ownerUuid", plot.getOwnerUuid());
+                plotObj.addProperty("sizeX", plot.getSizeX());
+                plotObj.addProperty("sizeZ", plot.getSizeZ());
+                plotObj.addProperty("cornerX", plot.getCornerX());
+                plotObj.addProperty("cornerZ", plot.getCornerZ());
+                plotObj.addProperty("isPremium", plot.isPremium());
+                plotObj.addProperty("biome", plot.getBiome());
+                plotObj.addProperty("createdAt", plot.getCreatedAt());
+
+                // Save members as array
+                JsonArray membersArray = new JsonArray();
+                for (String member : plot.getMembers()) {
+                    membersArray.add(member);
+                }
+                plotObj.add("members", membersArray);
+
+                plotsJson.add(String.valueOf(plotId), plotObj);
+            });
+            json.add("plots", plotsJson);
             
             try (FileWriter writer = new FileWriter(dataFile)) {
                 gson.toJson(json, writer);
@@ -375,5 +442,92 @@ public class PlotManager {
      */
     public List<String> getPlotMembers(int plotId) {
         return new ArrayList<>(plotMembers.getOrDefault(plotId, new ArrayList<>()));
+    }
+
+    // ===== NEW PLOTDATA SYSTEM =====
+
+    /**
+     * Get next plot ID for new plot creation
+     */
+    public int getNextPlotId() {
+        return nextPlotId;
+    }
+
+    /**
+     * Get a specific plot by ID
+     */
+    public PlotData getPlot(int plotId) {
+        return plots.get(plotId);
+    }
+
+    /**
+     * Get first plot of a player
+     */
+    public PlotData getFirstPlot(String playerUuid) {
+        List<Integer> playerPlotIds = playerPlots.getOrDefault(playerUuid, new ArrayList<>());
+        if (playerPlotIds.isEmpty()) return null;
+        return plots.get(playerPlotIds.get(0));
+    }
+
+    /**
+     * Get all plots of a player
+     */
+    public List<PlotData> getPlayerPlotData(String playerUuid) {
+        List<PlotData> result = new ArrayList<>();
+        List<Integer> plotIds = playerPlots.getOrDefault(playerUuid, new ArrayList<>());
+        for (Integer plotId : plotIds) {
+            PlotData plot = plots.get(plotId);
+            if (plot != null) {
+                result.add(plot);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Save or update a plot
+     */
+    public void savePlot(PlotData plot) {
+        plots.put(plot.getPlotId(), plot);
+        saveData();
+    }
+
+    /**
+     * Remove a plot by ID
+     */
+    public void removePlot(String playerUuid, int plotId) {
+        List<Integer> playerPlotIds = playerPlots.get(playerUuid);
+        if (playerPlotIds != null) {
+            playerPlotIds.remove(Integer.valueOf(plotId));
+            if (playerPlotIds.isEmpty()) {
+                playerPlots.remove(playerUuid);
+            }
+        }
+        plots.remove(plotId);
+        plotMembers.remove(plotId);
+        saveData();
+    }
+
+    /**
+     * Check if player is plot owner
+     */
+    public boolean isPlotOwner(String playerUuid, PlotData plot) {
+        return plot.isOwner(playerUuid);
+    }
+
+    /**
+     * Add member to a plot
+     */
+    public void addPlotMember(PlotData plot, String memberUuid) {
+        plot.addMember(memberUuid);
+        savePlot(plot);
+    }
+
+    /**
+     * Remove member from a plot
+     */
+    public void removePlotMember(PlotData plot, String memberUuid) {
+        plot.removeMember(memberUuid);
+        savePlot(plot);
     }
 }
