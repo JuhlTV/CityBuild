@@ -38,15 +38,18 @@ public class PlayerService {
         
         UUID uuid = player.getUniqueId();
         String uuidStr = uuid.toString();
+        
+        AdminManager.Role roleEnum = adminManager.getRole(uuidStr);
+        
         return new PlayerProfile(
             uuid,
             player.getName(),
             economyManager.getBalance(player),
-            adminManager.getRole(uuidStr),
+            roleEnum.name(),
             playtimeManager.getPlaytime(uuidStr),
-            plotManager.getPlotsOwned(uuidStr).size(),
-            adminManager.getWarnings(uuidStr),
-            achievementManager.getUnlockedCount(uuidStr)
+            plotManager.getPlotCount(uuidStr),
+            (int) adminManager.getWarnings(uuidStr),
+            achievementManager.getAchievementCount(uuidStr)
         );
     }
     
@@ -84,12 +87,12 @@ public class PlayerService {
     public String getDisplayName(Player player) {
         if (player == null) return "Unknown";
         
-        String role = adminManager.getRole(player.getUniqueId().toString());
-        String rolePrefix = switch(role) {
-            case "OWNER" -> "👑 ";
-            case "ADMIN" -> "⚙️ ";
-            case "MODERATOR" -> "👮 ";
-            case "MEMBER" -> "✅ ";
+        AdminManager.Role role = adminManager.getRole(player.getUniqueId().toString());
+        String rolePrefix = switch (role) {
+            case OWNER -> "👑 ";
+            case ADMIN -> "⚙️ ";
+            case MODERATOR -> "👮 ";
+            case MEMBER -> "✅ ";
             default -> "";
         };
         
