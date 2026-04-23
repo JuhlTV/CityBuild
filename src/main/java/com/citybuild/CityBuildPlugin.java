@@ -19,6 +19,7 @@ import com.citybuild.features.events.AdvancementEventManager;
 import com.citybuild.features.dungeons.DungeonManager;
 import com.citybuild.features.treasures.TreasureManager;
 import com.citybuild.features.npcs.NPCManager;
+import com.citybuild.config.ConfigManager;
 import com.citybuild.protection.WorldGuardAdapter;
 import com.citybuild.storage.GuildPersistence;
 import com.citybuild.storage.TradePersistence;
@@ -45,6 +46,7 @@ import com.citybuild.commands.EventCommand;
 import com.citybuild.commands.DungeonCommand;
 import com.citybuild.commands.TreasureCommand;
 import com.citybuild.commands.NPCCommand;
+import com.citybuild.commands.ConfigCommand;
 import java.util.Objects;
 
 /**
@@ -73,6 +75,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private DungeonManager dungeonManager;
     private TreasureManager treasureManager;
     private NPCManager npcManager;
+    private ConfigManager configManager;
     private WorldGuardAdapter worldGuardAdapter;
     private GuildPersistence guildPersistence;
     private TradePersistence tradePersistence;
@@ -152,6 +155,7 @@ public class CityBuildPlugin extends JavaPlugin {
         this.dungeonManager = new DungeonManager(this);
         this.treasureManager = new TreasureManager(this);
         this.npcManager = new NPCManager(this);
+        this.configManager = new ConfigManager(this);
         this.worldGuardAdapter = new WorldGuardAdapter(this);
         this.guildPersistence = new GuildPersistence(this);
         this.tradePersistence = new TradePersistence(this);
@@ -196,6 +200,8 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new TreasureCommand(treasureManager));
         Objects.requireNonNull(getCommand("npc"), "npc command not found in plugin.yml")
             .setExecutor(new NPCCommand(npcManager));
+        Objects.requireNonNull(getCommand("config"), "config command not found in plugin.yml")
+            .setExecutor(new ConfigCommand(configManager));
         
         getLogger().info("✓ Commands registered");
     }
@@ -289,6 +295,10 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public NPCManager getNPCManager() {
         return npcManager;
+    }
+    
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
     
     public WorldGuardAdapter getWorldGuardAdapter() {

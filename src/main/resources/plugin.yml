@@ -72,6 +72,10 @@ commands:
     description: NPC traders
     usage: /npc <list|info|find|stats>
     aliases: [trader, traders]
+  config:
+    description: Configuration management (admin only)
+    usage: /config <view|reload|summary|set>
+    aliases: [cfg, settings]
 
 permissions:
   citybuild.plot.buy:
@@ -125,3 +129,9 @@ permissions:
   citybuild.npc:
     description: NPC traders
     default: true
+  citybuild.config:
+    description: Configuration management
+    default: op
+  citybuild.admin:
+    description: Admin commands
+    default: op
