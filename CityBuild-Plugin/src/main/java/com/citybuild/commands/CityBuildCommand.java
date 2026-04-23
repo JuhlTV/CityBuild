@@ -4,6 +4,8 @@ import com.citybuild.CityBuildPlugin;
 import com.citybuild.core.commands.CommandRegistry;
 import com.citybuild.core.commands.handlers.*;
 import com.citybuild.managers.*;
+import com.citybuild.model.PlotData;
+import com.citybuild.utils.PlotGenerator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -160,29 +162,69 @@ public class CityBuildCommand implements CommandExecutor {
             return true;
         }
 
+        // Create new PlotData
+        int plotId = plots.getNextPlotId();
+        int cornerX = calculatePlotCornerX(plotId - 1);
+        int cornerZ = calculatePlotCornerZ(plotId - 1);
+        
+        PlotData newPlot = new PlotData(plotId, player.getUniqueId().toString(), cornerX, cornerZ);
+        
+        // Generate terrain
+        PlotGenerator.generatePlot(plugin.getWorldManager().getPlotWorld(), newPlot);
+        
+        // Save plot
+        plots.savePlot(newPlot);
         economy.removeBalance(player, price);
-        plots.addPlot(player.getUniqueId().toString());
 
         player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
-                .append(Component.text("✓ Plot purchased! You now own " + plots.getPlotCount(player.getUniqueId().toString()) + " plots", NamedTextColor.GREEN)));
+                .append(Component.text("✓ Plot #" + plotId + " purchased! Your plot is at coordinates " + cornerX + ", " + cornerZ, NamedTextColor.GREEN)));
+        
+        player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
+                .append(Component.text("🚩 Use /citybuild tpplot to teleport to your plot!", NamedTextColor.YELLOW)));
 
         return true;
+    }
+
+    /**
+     * Calculate corner X coordinate for a plot index
+     */
+    private int calculatePlotCornerX(int plotIndex) {
+        final int PLOT_SIZE = 16;
+        final int PLOT_SPACING = 2;
+        final int PLOTS_PER_ROW = 10;
+        int col = plotIndex % PLOTS_PER_ROW;
+        return col * (PLOT_SIZE + PLOT_SPACING);
+    }
+
+    /**
+     * Calculate corner Z coordinate for a plot index
+     */
+    private int calculatePlotCornerZ(int plotIndex) {
+        final int PLOT_SIZE = 16;
+        final int PLOT_SPACING = 2;
+        final int PLOTS_PER_ROW = 10;
+        int row = plotIndex / PLOTS_PER_ROW;
+        return row * (PLOT_SIZE + PLOT_SPACING);
     }
 
     private boolean handleSell(Player player) {
         String uuid = player.getUniqueId().toString();
         
-        if (!plots.hasPlots(uuid)) {
+        PlotData firstPlot = plots.getFirstPlot(uuid);
+        if (firstPlot == null) {
             player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
                     .append(Component.text("❌ You don't own any plots!", NamedTextColor.RED)));
             return true;
         }
 
+        // Delete terrain and remove plot
+        PlotGenerator.deletePlot(plugin.getWorldManager().getPlotWorld(), firstPlot);
+        plots.removePlot(uuid, firstPlot.getPlotId());
+        
         economy.addBalance(player, plots.getPlotSellPrice());
-        plots.removePlot(uuid);
 
         player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
-                .append(Component.text("✓ Plot sold for $" + plots.getPlotSellPrice() + "!", NamedTextColor.GREEN)));
+                .append(Component.text("✓ Plot #" + firstPlot.getPlotId() + " sold for $" + plots.getPlotSellPrice() + "!", NamedTextColor.GREEN)));
 
         return true;
     }
@@ -235,7 +277,8 @@ public class CityBuildCommand implements CommandExecutor {
     private boolean handleTeleportPlot(Player player) {
         String uuid = player.getUniqueId().toString();
         
-        if (!plots.hasPlots(uuid)) {
+        PlotData firstPlot = plots.getFirstPlot(uuid);
+        if (firstPlot == null) {
             player.sendMessage(Component.text("[CityBuild] ", NamedTextColor.BLUE)
                     .append(Component.text("❌ You don't own any plots! Buy one first.", NamedTextColor.RED)));
             return true;
@@ -248,10 +291,8 @@ public class CityBuildCommand implements CommandExecutor {
             return true;
         }
 
-        // Create/update plot frame before teleporting
-        plots.createPlotFrame(uuid);
-        
-        Location plotLocation = plots.getFirstPlotLocation(uuid);
+        // Teleport to plot spawn location
+        Location plotLocation = PlotGenerator.getPlotSpawn(plugin.getWorldManager().getPlotWorld(), firstPlot);
         player.teleport(plotLocation);
         
         // Set cooldown
@@ -259,8 +300,8 @@ public class CityBuildCommand implements CommandExecutor {
         
         // Show title message
         player.showTitle(net.kyori.adventure.title.Title.title(
-            Component.text("📍 Plot World", NamedTextColor.AQUA, net.kyori.adventure.text.format.TextDecoration.BOLD),
-            Component.text("You've been teleported to your plot", NamedTextColor.GRAY)
+            Component.text("📍 Plot #" + firstPlot.getPlotId(), NamedTextColor.AQUA, net.kyori.adventure.text.format.TextDecoration.BOLD),
+            Component.text(firstPlot.getSizeX() + "x" + firstPlot.getSizeZ() + " blocks | Area: " + firstPlot.getArea() + "m²", NamedTextColor.GRAY)
         ));
         
         // Grant 5-second invincibility after teleport
