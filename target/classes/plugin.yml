@@ -48,6 +48,10 @@ commands:
     description: Cosmetics and customization
     usage: /cosmetics <title|color|rainbow|particles|info|reset>
     aliases: [cosmetic, skins]
+  quest:
+    description: Quest management commands
+    usage: /quest <active|completed|all|info|stats>
+    aliases: [q, quests]
 
 permissions:
   citybuild.plot.buy:
@@ -82,4 +86,7 @@ permissions:
     default: true
   citybuild.cosmetics:
     description: Cosmetics and customization
+    default: true
+  citybuild.quest:
+    description: Quest system
     default: true
