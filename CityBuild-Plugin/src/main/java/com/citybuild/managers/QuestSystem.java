@@ -182,11 +182,11 @@ public class QuestSystem {
             return 0;
         }
 
-        return (int) playerQuests.stream()
+        return playerQuests.stream()
             .filter(qp -> qp.questId == questId)
             .findFirst()
-            .map(qp -> qp.progress)
-            .orElse(0L);
+            .map(qp -> Math.toIntExact(qp.progress))
+            .orElse(0);
     }
 
     /**
