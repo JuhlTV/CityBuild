@@ -41,6 +41,9 @@ public class AdminCommandHandler {
             case "panel":
                 openAdminPanel(player);
                 break;
+            case "plot":
+                handlePlotCommand(player, args);
+                break;
             case "role":
                 handleRoleCommand(player, args);
                 break;
@@ -350,7 +353,16 @@ public class AdminCommandHandler {
         player.sendMessage(Component.text("/citybuild admin unmute <player> - Unmute Player", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild admin kick <player> [reason] - Kick Player", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild admin logs <player> - View Player Logs", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/citybuild admin plot <subcommand> - Manage player plots", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/citybuild admin admin-list - Show All Admins", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("Roles: OWNER(👑) | ADMIN(🔴) | MODERATOR(🟡) | MEMBER(🟢)", NamedTextColor.AQUA));
+    }
+
+    /**
+     * Handle admin plot commands (expand, resize, clear, delete, etc.)
+     */
+    private void handlePlotCommand(Player player, String[] args) {
+        AdminPlotCommandHandler plotAdmin = new AdminPlotCommandHandler(plugin);
+        plotAdmin.handleAdminPlotCommand(player, args);
     }
 }
