@@ -8,7 +8,8 @@ import java.util.*;
  */
 public class PlotData {
     private final int plotId;
-    private final String ownerUuid;
+    private String ownerUuid;        // Can be transferred via market
+    private final String originalOwnerUuid; // Who originally created it
     private int sizeX = 16;  // Width (default 16x16)
     private int sizeZ = 16;  // Depth
     private int cornerX;     // Corner coordinates for calculations
@@ -22,6 +23,7 @@ public class PlotData {
     public PlotData(int plotId, String ownerUuid, int cornerX, int cornerZ) {
         this.plotId = plotId;
         this.ownerUuid = ownerUuid;
+        this.originalOwnerUuid = ownerUuid;
         this.cornerX = cornerX;
         this.cornerZ = cornerZ;
         this.createdAt = System.currentTimeMillis();
@@ -31,6 +33,7 @@ public class PlotData {
     // ===== GETTERS =====
     public int getPlotId() { return plotId; }
     public String getOwnerUuid() { return ownerUuid; }
+    public String getOriginalOwnerUuid() { return originalOwnerUuid; }
     public int getSizeX() { return sizeX; }
     public int getSizeZ() { return sizeZ; }
     public int getCornerX() { return cornerX; }
@@ -44,6 +47,11 @@ public class PlotData {
     public String getBiome() { return biome; }
 
     // ===== SETTERS =====
+    public void setOwner(String newOwnerUuid) {
+        this.ownerUuid = newOwnerUuid;
+        this.lastModified = System.currentTimeMillis();
+    }
+
     public void setSizeX(int sizeX) {
         this.sizeX = sizeX;
         this.lastModified = System.currentTimeMillis();
