@@ -222,6 +222,42 @@ public class EconomyManager {
         }
     }
 
+    // ===== COMPATIBILITY METHODS FOR ECONOMY SYSTEMS =====
+    // These methods provide the hasBalance/withdraw/deposit API
+    // used by AuctionSystem, BankingSystem, InsuranceSystem, RentalSystem, etc.
+
+    /**
+     * Compatibility method: Check if player has sufficient balance
+     * Delegates to canAfford()
+     */
+    public boolean hasBalance(String playerUuid, long amount) {
+        return canAfford(playerUuid, amount);
+    }
+
+    /**
+     * Compatibility method: Withdraw money from player
+     * Returns true if successful, false if insufficient funds
+     * Delegates to removeBalance() after validation
+     */
+    public boolean withdraw(String playerUuid, long amount) {
+        if (playerUuid == null || playerUuid.isEmpty() || amount < 0) {
+            return false;
+        }
+        if (!canAfford(playerUuid, amount)) {
+            return false;
+        }
+        removeBalance(playerUuid, amount);
+        return true;
+    }
+
+    /**
+     * Compatibility method: Deposit money to player
+     * Delegates to addBalance()
+     */
+    public void deposit(String playerUuid, long amount) {
+        addBalance(playerUuid, amount);
+    }
+
     public void saveData() {
         try {
             dataFile.getParentFile().mkdirs();
