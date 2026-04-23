@@ -68,7 +68,6 @@ public class CommandRegistryTest {
         
         var cmd = registry.getCommand("menu");
         assertTrue(cmd.isPresent());
-        assertEquals("menu", cmd.get().getName());
     }
     
     @Test

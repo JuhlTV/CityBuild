@@ -35,8 +35,9 @@ public class AdminService {
         }
         
         try {
-            adminManager.warnPlayer(targetPlayer.getUniqueId(), reason);
-            int warnings = adminManager.getWarnings(targetPlayer.getUniqueId());
+            String targetUuid = targetPlayer.getUniqueId().toString();
+            adminManager.addWarning(targetUuid);
+            int warnings = (int) adminManager.getWarnings(targetUuid);
             
             logger.info("Warning: " + adminPlayer.getName() + " warned " + targetPlayer.getName() + 
                        " (" + warnings + "/" + MAX_WARNING_POINTS + ") - " + reason);
@@ -67,7 +68,9 @@ public class AdminService {
         }
         
         try {
-            adminManager.mutePlayer(targetPlayer.getUniqueId(), durationMinutes, reason);
+            String targetUuid = targetPlayer.getUniqueId().toString();
+            long durationMs = durationMinutes * 60_000L;
+            adminManager.mute(targetUuid, durationMs);
             logger.info("Mute: " + adminPlayer.getName() + " muted " + targetPlayer.getName() + 
                        " for " + durationMinutes + " min - " + reason);
             return OperationResult.success(targetPlayer.getName() + " muted for " + durationMinutes + " minutes");
@@ -84,7 +87,7 @@ public class AdminService {
      */
     public boolean isMuted(Player player) {
         if (player == null) return false;
-        return adminManager.isMuted(player.getUniqueId());
+        return adminManager.isMuted(player.getUniqueId().toString());
     }
     
     /**
@@ -94,7 +97,7 @@ public class AdminService {
      */
     public long getMuteTimeRemaining(Player player) {
         if (player == null) return 0;
-        return adminManager.getMuteTimeRemaining(player.getUniqueId());
+        return adminManager.getMuteTimeRemaining(player.getUniqueId().toString());
     }
     
     /**
@@ -115,13 +118,15 @@ public class AdminService {
         }
         
         try {
-            String previousRole = adminManager.getRole(targetPlayer.getUniqueId());
-            adminManager.setRole(targetPlayer.getUniqueId(), role);
+            String uuid = targetPlayer.getUniqueId().toString();
+            AdminManager.Role newRole = AdminManager.Role.valueOf(role.toUpperCase());
+            AdminManager.Role previousRole = adminManager.getRole(uuid);
+            adminManager.setRole(uuid, newRole);
             
             logger.info("Role change: " + adminPlayer.getName() + " set " + targetPlayer.getName() + 
                        " role to " + role + " (was: " + previousRole + ")");
             
-            return OperationResult.success("Role changed: " + previousRole + " → " + role);
+            return OperationResult.success("Role changed: " + previousRole.displayName + " → " + newRole.displayName);
         } catch (Exception e) {
             logger.severe("Role change failed: " + e.getMessage());
             return OperationResult.failure("Failed to change role: " + e.getMessage());
@@ -135,7 +140,8 @@ public class AdminService {
      */
     public String getRole(Player player) {
         if (player == null) return "GUEST";
-        return adminManager.getRole(player.getUniqueId());
+        AdminManager.Role role = adminManager.getRole(player.getUniqueId().toString());
+        return role != null ? role.name() : "GUEST";
     }
     
     /**
@@ -145,8 +151,10 @@ public class AdminService {
      * @return true if player has at least this role
      */
     public boolean hasRole(Player player, String role) {
-        if (player == null) return false;
-        return adminManager.hasRole(player.getUniqueId(), role);
+        if (player == null || role == null) return false;
+        AdminManager.Role required = AdminManager.Role.valueOf(role.toUpperCase());
+        AdminManager.Role actual = adminManager.getRole(player.getUniqueId().toString());
+        return actual != null && actual.level >= required.level;
     }
     
     /**
@@ -156,7 +164,7 @@ public class AdminService {
      */
     public boolean hasPermission(Player player) {
         if (player == null) return false;
-        return player.isOp() || adminManager.hasPermission(player.getUniqueId());
+        return player.isOp() || adminManager.hasPermission(player.getUniqueId().toString(), AdminManager.Role.MODERATOR);
     }
     
     /**

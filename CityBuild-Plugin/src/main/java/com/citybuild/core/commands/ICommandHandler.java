@@ -17,12 +17,6 @@ public interface ICommandHandler {
     boolean execute(Player player, String[] args);
     
     /**
-     * Get command name/identifier
-     * @return Command name (e.g., "economy", "plot", "admin")
-     */
-    String getName();
-    
-    /**
      * Get permission required for this command (optional)
      * @return Permission string, null if no permission required
      */

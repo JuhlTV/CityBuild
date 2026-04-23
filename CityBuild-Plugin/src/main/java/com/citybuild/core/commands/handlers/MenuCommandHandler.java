@@ -21,11 +21,6 @@ public class MenuCommandHandler implements ICommandHandler {
     }
     
     @Override
-    public String getName() {
-        return "menu";
-    }
-    
-    @Override
     public String getUsage() {
         return "/citybuild menu";
     }

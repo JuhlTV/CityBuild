@@ -36,11 +36,6 @@ public class InfoCommandHandler implements ICommandHandler {
     }
     
     @Override
-    public String getName() {
-        return "info";
-    }
-    
-    @Override
     public String getUsage() {
         return "/citybuild info";
     }

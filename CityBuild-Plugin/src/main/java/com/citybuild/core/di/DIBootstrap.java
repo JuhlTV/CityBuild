@@ -160,7 +160,7 @@ public class DIBootstrap {
         container.registerSingleton(CommandRegistry.class, commandRegistry);
         
         // Register event dispatcher
-        EventDispatcher eventDispatcher = new EventDispatcher(logger);
+        EventDispatcher eventDispatcher = new EventDispatcher(plugin);
         container.registerSingleton(EventDispatcher.class, eventDispatcher);
         
         logger.info("✅ Registered command and event systems");

@@ -48,11 +48,6 @@ public class LeaderboardCommandHandler implements ICommandHandler {
     }
     
     @Override
-    public String getName() {
-        return "leaderboard";
-    }
-    
-    @Override
     public String getUsage() {
         return "/citybuild leaderboard";
     }

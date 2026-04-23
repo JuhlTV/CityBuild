@@ -37,7 +37,7 @@ public class EconomyService {
             return TransferResult.failure("Cannot transfer to yourself");
         }
         
-        if (!ValidationUtils.validatePositiveAmount(amount)) {
+        if (!ValidationUtils.validatePositiveAmount(amount, "EconomyService.transfer")) {
             return TransferResult.failure("Amount must be positive");
         }
         
@@ -49,14 +49,14 @@ public class EconomyService {
         
         // Execute transfer
         try {
-            economyManager.removeBalance(fromPlayer.getUniqueId(), amount);
-            economyManager.addBalance(toPlayer.getUniqueId(), amount);
+            economyManager.removeBalance(fromPlayer.getUniqueId().toString(), amount);
+            economyManager.addBalance(toPlayer.getUniqueId().toString(), amount);
             
             logger.info("Transfer: " + fromPlayer.getName() + " → " + toPlayer.getName() + " : $" + amount);
             return TransferResult.success("Transferred $" + amount, amount);
         } catch (Exception e) {
             logger.severe("Transfer failed: " + e.getMessage());
-            economyManager.addBalance(fromPlayer.getUniqueId(), amount);  // Rollback
+            economyManager.addBalance(fromPlayer.getUniqueId().toString(), amount);  // Rollback
             return TransferResult.failure("Transfer failed: " + e.getMessage());
         }
     }
@@ -69,12 +69,12 @@ public class EconomyService {
      * @return OperationResult
      */
     public OperationResult addBonus(Player player, long amount, String reason) {
-        if (player == null || !ValidationUtils.validatePositiveAmount(amount)) {
+        if (player == null || !ValidationUtils.validatePositiveAmount(amount, "EconomyService.addBonus")) {
             return OperationResult.failure("Invalid parameters");
         }
         
         try {
-            economyManager.addBalance(player.getUniqueId(), amount);
+            economyManager.addBalance(player.getUniqueId().toString(), amount);
             logger.info("Bonus: " + player.getName() + " received $" + amount + " (" + reason + ")");
             return OperationResult.success("Added $" + amount);
         } catch (Exception e) {
