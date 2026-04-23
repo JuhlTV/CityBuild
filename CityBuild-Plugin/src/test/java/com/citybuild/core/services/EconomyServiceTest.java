@@ -67,7 +67,7 @@ public class EconomyServiceTest {
         EconomyService.OperationResult result = service.addBonus(player, 500, "Daily reward");
         
         assertTrue(result.isSuccess(), "Bonus should succeed");
-        verify(mockEconomyManager, times(1)).addBalance(player.getUniqueId(), 500);
+        verify(mockEconomyManager, times(1)).addBalance(player, 500L);
     }
     
     @Test
