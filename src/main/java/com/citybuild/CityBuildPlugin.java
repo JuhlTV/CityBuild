@@ -11,7 +11,10 @@ import com.citybuild.features.farming.AchievementManager;
 import com.citybuild.features.farming.PlayerFarmDataManager;
 import com.citybuild.listeners.InventoryClickListener;
 import com.citybuild.listeners.BlockBreakListener;
-import com.citybuild.commands.*;
+import com.citybuild.commands.PlotCommand;
+import com.citybuild.commands.EconomyCommand;
+import com.citybuild.commands.TerrainCommand;
+import com.citybuild.commands.AdminCommand;
 import java.util.Objects;
 
 /**
@@ -102,8 +105,6 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new TerrainCommand(terrainManager));
         Objects.requireNonNull(getCommand("admin"), "admin command not found in plugin.yml")
             .setExecutor(new AdminCommand(adminManager, plotManager, terrainManager));
-        Objects.requireNonNull(getCommand("shop"), "shop command not found in plugin.yml")
-            .setExecutor(new ShopCommand(guiManager));
         
         getLogger().info("✓ Commands registered");
     }
