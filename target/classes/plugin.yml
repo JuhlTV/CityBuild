@@ -21,9 +21,9 @@ commands:
     description: Shop commands
     usage: /shop <create|remove|info>
   lb:
-    description: Leaderboard commands
-    usage: /lb <richest|ach|plots|farmers>
-    aliases: [leaderboard]
+    description: Enhanced leaderboard commands (top|weekly|monthly|alltime|rank|stats|compare|filter)
+    usage: /lb <top|weekly|monthly|alltime|rank|stats|compare|filter>
+    aliases: [leaderboard, leader, rankings]
   ach:
     description: Achievement commands
     usage: /ach [progress]

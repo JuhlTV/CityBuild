@@ -50,13 +50,18 @@ import com.citybuild.commands.ConfigCommand;
 import com.citybuild.commands.BiomeCommand;
 import com.citybuild.commands.TeleportCommand;
 import com.citybuild.commands.ArenaCommand;
+import com.citybuild.commands.EnhancedLeaderboardCommand;
 import com.citybuild.features.biomes.BiomeGenerator;
+import com.citybuild.features.biomes.ExtendedBiomeGenerator;
 import com.citybuild.features.teleportation.TeleportationHub;
 import com.citybuild.features.arenas.MobArena;
 import com.citybuild.features.leaderboard.LeaderboardPersistence;
 import com.citybuild.util.SoundEffects;
 import com.citybuild.util.ParticleEffects;
 import com.citybuild.util.MessageManager;
+import com.citybuild.util.ValidationUtil;
+import com.citybuild.util.JSONSafetyWrapper;
+import com.citybuild.util.AsyncDataSaver;
 import java.util.Objects;
 
 /**
@@ -88,8 +93,10 @@ public class CityBuildPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private WorldGuardAdapter worldGuardAdapter;
     private BiomeGenerator biomeGenerator;
+    private ExtendedBiomeGenerator extendedBiomeGenerator;
     private TeleportationHub teleportationHub;
     private LeaderboardPersistence leaderboardPersistence;
+    private AsyncDataSaver asyncDataSaver;
     private GuildPersistence guildPersistence;
     private TradePersistence tradePersistence;
     private AuctionPersistence auctionPersistence;
@@ -141,6 +148,9 @@ public class CityBuildPlugin extends JavaPlugin {
         if (dataManager != null) {
             dataManager.saveAllData();
         }
+        if (asyncDataSaver != null) {
+            asyncDataSaver.shutdown();
+        }
         
         getLogger().info("✓ CityBuild Plugin disabled! All data saved to JSON.");
     }
@@ -171,8 +181,10 @@ public class CityBuildPlugin extends JavaPlugin {
         this.configManager = new ConfigManager(this);
         this.worldGuardAdapter = new WorldGuardAdapter(this);
         this.biomeGenerator = new BiomeGenerator(this);
+        this.extendedBiomeGenerator = new ExtendedBiomeGenerator(this);
         this.teleportationHub = new TeleportationHub(this);
         this.leaderboardPersistence = new LeaderboardPersistence(this);
+        this.asyncDataSaver = new AsyncDataSaver(this);
         this.guildPersistence = new GuildPersistence(this);
         this.tradePersistence = new TradePersistence(this);
         this.auctionPersistence = new AuctionPersistence(this);
@@ -191,7 +203,7 @@ public class CityBuildPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("admin"), "admin command not found in plugin.yml")
             .setExecutor(new AdminCommand(adminManager, plotManager, terrainManager));
         Objects.requireNonNull(getCommand("lb"), "lb command not found in plugin.yml")
-            .setExecutor(new LeaderboardCommand(leaderboardManager));
+            .setExecutor(new EnhancedLeaderboardCommand(this, leaderboardManager));
         Objects.requireNonNull(getCommand("ach"), "ach command not found in plugin.yml")
             .setExecutor(new AchievementCommand(achievementManager));
         Objects.requireNonNull(getCommand("guild"), "guild command not found in plugin.yml")
@@ -353,6 +365,14 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public LeaderboardPersistence getLeaderboardPersistence() {
         return leaderboardPersistence;
+    }
+    
+    public ExtendedBiomeGenerator getExtendedBiomeGenerator() {
+        return extendedBiomeGenerator;
+    }
+    
+    public AsyncDataSaver getAsyncDataSaver() {
+        return asyncDataSaver;
     }
     
     public static CityBuildPlugin getInstance() {
