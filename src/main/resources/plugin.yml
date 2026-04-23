@@ -36,6 +36,10 @@ commands:
     description: Trading commands
     usage: /trade <start|offer|accept|cancel|status>
     aliases: [exchange]
+  rank:
+    description: Rank and progression commands
+    usage: /rank [player]
+    aliases: [rating]
 
 permissions:
   citybuild.plot.buy:
@@ -61,4 +65,7 @@ permissions:
     default: true
   citybuild.trade:
     description: Trading commands
+    default: true
+  citybuild.rank:
+    description: Rank and progression commands
     default: true

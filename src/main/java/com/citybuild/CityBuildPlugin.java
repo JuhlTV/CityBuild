@@ -10,6 +10,7 @@ import com.citybuild.features.achievements.AchievementManager;
 import com.citybuild.features.leaderboards.LeaderboardManager;
 import com.citybuild.features.trading.TradingManager;
 import com.citybuild.features.guilds.GuildManager;
+import com.citybuild.features.ranking.RankingManager;
 import com.citybuild.gui.GUIManager;
 import com.citybuild.features.farming.PlayerFarmDataManager;
 import com.citybuild.listeners.InventoryClickListener;
@@ -22,6 +23,7 @@ import com.citybuild.commands.LeaderboardCommand;
 import com.citybuild.commands.AchievementCommand;
 import com.citybuild.commands.GuildCommand;
 import com.citybuild.commands.TradeCommand;
+import com.citybuild.commands.RankCommand;
 import java.util.Objects;
 
 /**
@@ -41,6 +43,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private LeaderboardManager leaderboardManager;
     private TradingManager tradingManager;
     private GuildManager guildManager;
+    private RankingManager rankingManager;
     private PlayerFarmDataManager farmDataManager;
 
     @Override
@@ -107,6 +110,7 @@ public class CityBuildPlugin extends JavaPlugin {
         this.leaderboardManager = new LeaderboardManager(economyManager, plotManager, achievementManager);
         this.tradingManager = new TradingManager(this, economyManager);
         this.guildManager = new GuildManager(this);
+        this.rankingManager = new RankingManager();
         this.farmDataManager = new PlayerFarmDataManager(this, dataManager);
         
         getLogger().info("✓ Managers initialized with JSON persistence");
@@ -129,6 +133,8 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new GuildCommand(guildManager));
         Objects.requireNonNull(getCommand("trade"), "trade command not found in plugin.yml")
             .setExecutor(new TradeCommand(tradingManager));
+        Objects.requireNonNull(getCommand("rank"), "rank command not found in plugin.yml")
+            .setExecutor(new RankCommand(this));
         
         getLogger().info("✓ Commands registered");
     }
@@ -186,6 +192,10 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public GuildManager getGuildManager() {
         return guildManager;
+    }
+    
+    public RankingManager getRankingManager() {
+        return rankingManager;
     }
     
     public PlayerFarmDataManager getFarmDataManager() {
