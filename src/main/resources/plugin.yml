@@ -52,6 +52,14 @@ commands:
     description: Quest management commands
     usage: /quest <active|completed|all|info|stats>
     aliases: [q, quests]
+  clan:
+    description: Clan management
+    usage: /clan <create|join|leave|info|members|list>
+    aliases: [c, clans]
+  event:
+    description: Advancement events
+    usage: /event <active|view|info|stats|leaderboard>
+    aliases: [events, advancement]
 
 permissions:
   citybuild.plot.buy:
@@ -89,4 +97,10 @@ permissions:
     default: true
   citybuild.quest:
     description: Quest system
+    default: true
+  citybuild.clan:
+    description: Clan system
+    default: true
+  citybuild.event:
+    description: Advancement events
     default: true
