@@ -324,6 +324,20 @@ public class PlotManager {
     }
 
     /**
+     * Gets number of plots owned by a player (including merged plots)
+     */
+    public int getPlayerPlotCount(UUID playerUUID) {
+        String mainPlotId = playerPlots.get(playerUUID.toString());
+        if (mainPlotId == null) {
+            return 0;
+        }
+        
+        int count = 1; // Main plot
+        count += mergedPlots.getOrDefault(mainPlotId, new HashSet<>()).size();
+        return count;
+    }
+
+    /**
      * Save single plot to JSON
      */
     private void savePlot(String plotId) {

@@ -20,6 +20,14 @@ commands:
   shop:
     description: Shop commands
     usage: /shop <create|remove|info>
+  lb:
+    description: Leaderboard commands
+    usage: /lb <richest|ach|plots|farmers>
+    aliases: [leaderboard]
+  ach:
+    description: Achievement commands
+    usage: /ach [progress]
+    aliases: [achievements]
 
 permissions:
   citybuild.plot.buy:
@@ -34,3 +42,9 @@ permissions:
   citybuild.admin:
     description: Admin permissions
     default: op
+  citybuild.leaderboard:
+    description: View leaderboards
+    default: true
+  citybuild.achievements:
+    description: View achievements
+    default: true

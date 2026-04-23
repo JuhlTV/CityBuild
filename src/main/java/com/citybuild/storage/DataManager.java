@@ -321,6 +321,62 @@ public class DataManager {
         }
     }
 
+    // ========== ACHIEVEMENTS ==========
+
+    /**
+     * Save player achievements data
+     */
+    public void savePlayerAchievements(String playerUUID, Map<String, Object> achievementData) {
+        try {
+            JsonObject data = new JsonObject();
+            data.addProperty("uuid", playerUUID);
+            
+            // Convert achievement data to JSON
+            for (Map.Entry<String, Object> entry : achievementData.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof Map) {
+                    data.add(entry.getKey(), gson.toJsonTree(value));
+                } else if (value instanceof Number) {
+                    data.addProperty(entry.getKey(), (Number) value);
+                } else if (value instanceof Boolean) {
+                    data.addProperty(entry.getKey(), (Boolean) value);
+                } else if (value instanceof String) {
+                    data.addProperty(entry.getKey(), (String) value);
+                }
+            }
+            
+            data.addProperty("lastSaved", System.currentTimeMillis());
+            Path file = playersFolder.resolve(playerUUID + "_achievements.json");
+            saveJson(file, data);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save achievements for " + playerUUID + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load player achievements data
+     */
+    public Map<String, Object> loadPlayerAchievements(String playerUUID) {
+        try {
+            Path file = playersFolder.resolve(playerUUID + "_achievements.json");
+            if (!Files.exists(file)) return null;
+            
+            JsonObject data = loadJson(file).getAsJsonObject();
+            Map<String, Object> result = new HashMap<>();
+            
+            for (String key : data.keySet()) {
+                if (key.equals("uuid") || key.equals("lastSaved")) continue;
+                JsonElement element = data.get(key);
+                result.put(key, gson.fromJson(element, Object.class));
+            }
+            
+            return result;
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load achievements for " + playerUUID + ": " + e.getMessage());
+            return null;
+        }
+    }
+
     /**
      * Plot data structure
      */

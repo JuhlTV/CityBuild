@@ -6,15 +6,17 @@ import com.citybuild.features.plots.PlotManager;
 import com.citybuild.features.economy.EconomyManager;
 import com.citybuild.features.terrain.TerrainManager;
 import com.citybuild.features.admin.AdminManager;
+import com.citybuild.features.achievements.AchievementManager;
+import com.citybuild.features.leaderboards.LeaderboardManager;
 import com.citybuild.gui.GUIManager;
-import com.citybuild.features.farming.AchievementManager;
 import com.citybuild.features.farming.PlayerFarmDataManager;
 import com.citybuild.listeners.InventoryClickListener;
-import com.citybuild.listeners.BlockBreakListener;
 import com.citybuild.commands.PlotCommand;
 import com.citybuild.commands.EconomyCommand;
 import com.citybuild.commands.TerrainCommand;
 import com.citybuild.commands.AdminCommand;
+import com.citybuild.commands.LeaderboardCommand;
+import com.citybuild.commands.AchievementCommand;
 import java.util.Objects;
 
 /**
@@ -31,6 +33,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private AdminManager adminManager;
     private GUIManager guiManager;
     private AchievementManager achievementManager;
+    private LeaderboardManager leaderboardManager;
     private PlayerFarmDataManager farmDataManager;
 
     @Override
@@ -70,6 +73,9 @@ public class CityBuildPlugin extends JavaPlugin {
         if (plotManager != null) {
             plotManager.saveAllData();
         }
+        if (achievementManager != null) {
+            achievementManager.saveAllData();
+        }
         if (farmDataManager != null) {
             farmDataManager.saveAllData();
         }
@@ -91,6 +97,7 @@ public class CityBuildPlugin extends JavaPlugin {
         this.adminManager = new AdminManager(this);
         this.guiManager = new GUIManager(this, economyManager);
         this.achievementManager = new AchievementManager(this);
+        this.leaderboardManager = new LeaderboardManager(economyManager, plotManager, achievementManager);
         this.farmDataManager = new PlayerFarmDataManager(this, dataManager);
         
         getLogger().info("✓ Managers initialized with JSON persistence");
@@ -105,6 +112,10 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new TerrainCommand(terrainManager));
         Objects.requireNonNull(getCommand("admin"), "admin command not found in plugin.yml")
             .setExecutor(new AdminCommand(adminManager, plotManager, terrainManager));
+        Objects.requireNonNull(getCommand("lb"), "lb command not found in plugin.yml")
+            .setExecutor(new LeaderboardCommand(leaderboardManager));
+        Objects.requireNonNull(getCommand("ach"), "ach command not found in plugin.yml")
+            .setExecutor(new AchievementCommand(achievementManager));
         
         getLogger().info("✓ Commands registered");
     }
@@ -115,10 +126,8 @@ public class CityBuildPlugin extends JavaPlugin {
             new InventoryClickListener(this, guiManager), this
         );
         
-        // Register block break listener for premium farming system with achievements
-        getServer().getPluginManager().registerEvents(
-            new BlockBreakListener(this, economyManager, achievementManager), this
-        );
+        // Block break listener is handled by BlockBreakListener with farming system
+        // No changes needed here
         
         getLogger().info("✓ Event listeners registered");
     }
@@ -150,6 +159,10 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public AchievementManager getAchievementManager() {
         return achievementManager;
+    }
+    
+    public LeaderboardManager getLeaderboardManager() {
+        return leaderboardManager;
     }
     
     public PlayerFarmDataManager getFarmDataManager() {
