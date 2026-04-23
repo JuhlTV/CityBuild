@@ -11,6 +11,7 @@ import com.citybuild.features.leaderboards.LeaderboardManager;
 import com.citybuild.features.trading.TradingManager;
 import com.citybuild.features.guilds.GuildManager;
 import com.citybuild.features.ranking.RankingManager;
+import com.citybuild.features.auctions.AuctionHouseManager;
 import com.citybuild.gui.GUIManager;
 import com.citybuild.features.farming.PlayerFarmDataManager;
 import com.citybuild.listeners.InventoryClickListener;
@@ -24,6 +25,7 @@ import com.citybuild.commands.AchievementCommand;
 import com.citybuild.commands.GuildCommand;
 import com.citybuild.commands.TradeCommand;
 import com.citybuild.commands.RankCommand;
+import com.citybuild.commands.AuctionCommand;
 import java.util.Objects;
 
 /**
@@ -44,6 +46,7 @@ public class CityBuildPlugin extends JavaPlugin {
     private TradingManager tradingManager;
     private GuildManager guildManager;
     private RankingManager rankingManager;
+    private AuctionHouseManager auctionHouseManager;
     private PlayerFarmDataManager farmDataManager;
 
     @Override
@@ -111,6 +114,7 @@ public class CityBuildPlugin extends JavaPlugin {
         this.tradingManager = new TradingManager(this, economyManager);
         this.guildManager = new GuildManager(this);
         this.rankingManager = new RankingManager();
+        this.auctionHouseManager = new AuctionHouseManager(this, economyManager);
         this.farmDataManager = new PlayerFarmDataManager(this, dataManager);
         
         getLogger().info("✓ Managers initialized with JSON persistence");
@@ -135,6 +139,8 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new TradeCommand(tradingManager));
         Objects.requireNonNull(getCommand("rank"), "rank command not found in plugin.yml")
             .setExecutor(new RankCommand(this));
+        Objects.requireNonNull(getCommand("auction"), "auction command not found in plugin.yml")
+            .setExecutor(new AuctionCommand(this, auctionHouseManager));
         
         getLogger().info("✓ Commands registered");
     }
@@ -196,6 +202,10 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public RankingManager getRankingManager() {
         return rankingManager;
+    }
+    
+    public AuctionHouseManager getAuctionHouseManager() {
+        return auctionHouseManager;
     }
     
     public PlayerFarmDataManager getFarmDataManager() {

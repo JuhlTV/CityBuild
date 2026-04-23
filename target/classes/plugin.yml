@@ -40,6 +40,10 @@ commands:
     description: Rank and progression commands
     usage: /rank [player]
     aliases: [rating]
+  auction:
+    description: Auction house commands
+    usage: /auction <create|list|bid|my|info|cancel|stats>
+    aliases: [ah]
 
 permissions:
   citybuild.plot.buy:
@@ -68,4 +72,7 @@ permissions:
     default: true
   citybuild.rank:
     description: Rank and progression commands
+    default: true
+  citybuild.auction:
+    description: Auction house commands
     default: true
