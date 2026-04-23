@@ -17,9 +17,20 @@ worlds:
   
 # Plot System
 plots:
-  size: 16                          # 16x16 blocks per plot
+  size: 16                          # 16x16 blocks per plot (10-100 range)
+  min_size: 10                      # Minimum plot size for admin resize
+  max_size: 100                     # Maximum plot size for admin resize
   spacing: 2                        # 2 blocks spacing between plots
   plots_per_row: 10                 # 10 plots per row in grid
+
+# Terrain Settings
+terrain:
+  generation_height: -60            # Y-level for plot surface (grass)
+  border_height: -59                # Y-level for fence borders
+  material_grass: GRASS_BLOCK       # Surface material
+  material_dirt: DIRT               # Underlay material
+  material_border: OAK_FENCE        # Border fence material
+  material_spawn: OAK_PLANKS        # Spawn platform material
 
 # Shop Settings
 shop:

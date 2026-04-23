@@ -51,6 +51,10 @@ public class PlotManager {
         this.plotSellPrice = plugin.getConfig().getInt("economy.plot_sell_price", 4000);
         
         dataFile.getParentFile().mkdirs();
+        
+        // Initialize PlotGenerator with config values
+        PlotGenerator.initialize(plugin);
+        
         loadData();
     }
 
@@ -109,7 +113,9 @@ public class PlotManager {
         int x = col * plotDistance;
         int z = row * plotDistance;
         
-        return new Location(plotWorld, x + 8, -60, z + 8); // Center of plot at Y=-60
+        // Use configured height from PlotGenerator
+        int spawnHeight = PlotGenerator.getPlotHeight() + 2; // +2 to spawn on surface
+        return new Location(plotWorld, x + 8, spawnHeight, z + 8); // Center of plot
     }
     
     /**

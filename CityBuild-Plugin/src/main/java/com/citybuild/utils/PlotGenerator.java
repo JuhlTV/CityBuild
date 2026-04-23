@@ -18,8 +18,34 @@ public class PlotGenerator {
     private static final Material PLOT_GRASS = Material.GRASS_BLOCK;
     private static final Material BORDER_MATERIAL = Material.OAK_FENCE;
     private static final Material CORNER_MATERIAL = Material.OAK_FENCE;
-    private static final int PLOT_HEIGHT = -60;
-    private static final int BORDER_HEIGHT = -59;
+    
+    // Configurable height levels (initialized from config.yml)
+    private static int PLOT_HEIGHT = -60;      // Default: Y=-60
+    private static int BORDER_HEIGHT = -59;    // Default: Y=-59
+
+    /**
+     * Initialize terrain heights from plugin configuration
+     * Called by PlotManager during setup
+     */
+    public static void initialize(JavaPlugin plugin) {
+        PLOT_HEIGHT = plugin.getConfig().getInt("terrain.generation_height", -60);
+        BORDER_HEIGHT = plugin.getConfig().getInt("terrain.border_height", -59);
+        plugin.getLogger().info("✓ Plot heights configured: surface=" + PLOT_HEIGHT + ", border=" + BORDER_HEIGHT);
+    }
+
+    /**
+     * Get configured plot generation height
+     */
+    public static int getPlotHeight() {
+        return PLOT_HEIGHT;
+    }
+
+    /**
+     * Get configured border height
+     */
+    public static int getBorderHeight() {
+        return BORDER_HEIGHT;
+    }
 
     /**
      * Generate complete plot terrain and border
@@ -30,16 +56,16 @@ public class PlotGenerator {
         int sizeX = plot.getSizeX();
         int sizeZ = plot.getSizeZ();
 
-        // Generate floor (dirt + grass on top)
+        // Generate floor (dirt underlay + grass surface)
         for (int x = cornerX; x < cornerX + sizeX; x++) {
             for (int z = cornerZ; z < cornerZ + sizeZ; z++) {
-                // Clear from Y=-63 to Y=-60
-                for (int y = -63; y <= -60; y++) {
+                // Generate 3-block dirt underlay + 1-block grass surface
+                for (int y = PLOT_HEIGHT - 3; y <= PLOT_HEIGHT; y++) {
                     Block block = world.getBlockAt(x, y, z);
-                    if (y < -60) {
-                        block.setType(PLOT_BASE);
+                    if (y == PLOT_HEIGHT) {
+                        block.setType(PLOT_GRASS);  // Surface
                     } else {
-                        block.setType(PLOT_GRASS);
+                        block.setType(PLOT_BASE);   // Underlay
                     }
                 }
             }
@@ -166,15 +192,16 @@ public class PlotGenerator {
         int sizeX = plot.getSizeX();
         int sizeZ = plot.getSizeZ();
 
-        // Clear all blocks inside plot
+        // Clear all blocks above surface (and borders)
         for (int x = cornerX; x < cornerX + sizeX; x++) {
             for (int z = cornerZ; z < cornerZ + sizeZ; z++) {
-                for (int y = -59; y <= 255; y++) {
+                // Clear from border height to sky
+                for (int y = BORDER_HEIGHT; y <= 255; y++) {
                     Block block = world.getBlockAt(x, y, z);
                     block.setType(Material.AIR);
                 }
-                // Reset floor
-                Block grass = world.getBlockAt(x, -60, z);
+                // Reset floor to grass
+                Block grass = world.getBlockAt(x, PLOT_HEIGHT, z);
                 grass.setType(PLOT_GRASS);
             }
         }
