@@ -1,7 +1,5 @@
 package com.citybuild.features.quests;
 
-import java.util.UUID;
-
 /**
  * Represents a quest that players can complete for rewards
  */

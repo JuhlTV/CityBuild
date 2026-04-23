@@ -1,9 +1,13 @@
 package com.citybuild.util;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.time.Duration;
 
 /**
  * Centralized message system with colors and formatting
@@ -51,7 +55,11 @@ public class MessageManager {
      * Send title message (player only)
      */
     public static void sendTitle(Player player, String title, String subtitle) {
-        player.sendTitle("§6" + title, "§e" + subtitle, 10, 40, 10);
+        player.showTitle(Title.title(
+            legacy("§6" + title),
+            legacy("§e" + subtitle),
+            Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(2), Duration.ofMillis(500))
+        ));
     }
 
     /**
@@ -65,7 +73,7 @@ public class MessageManager {
      * Broadcast message
      */
     public static void broadcast(String message) {
-        Bukkit.broadcastMessage(Message.PREFIX + "§e" + message);
+        Bukkit.broadcast(legacy(Message.PREFIX + "§e" + message));
     }
 
     /**
@@ -118,5 +126,9 @@ public class MessageManager {
      */
     public static String formatPlayerName(String name, String rank) {
         return rank + " §7" + name;
+    }
+
+    private static Component legacy(String text) {
+        return LegacyComponentSerializer.legacySection().deserialize(text);
     }
 }

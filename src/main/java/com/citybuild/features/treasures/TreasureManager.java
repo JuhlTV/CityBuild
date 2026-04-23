@@ -1,5 +1,8 @@
 package com.citybuild.features.treasures;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -7,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -52,14 +56,14 @@ public class TreasureManager {
 
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null) {
-            player.sendTitle(
-                "§6✨ TREASURE FOUND! ✨",
-                "§e+" + String.format("%.0f", chest.getRarity().getReward()),
-                10, 40, 10
-            );
+            player.showTitle(Title.title(
+                legacy("§6✨ TREASURE FOUND! ✨"),
+                legacy("§e+" + String.format("%.0f", chest.getRarity().getReward())),
+                Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(2), Duration.ofMillis(500))
+            ));
         }
 
-        Bukkit.broadcastMessage("§6✨ " + (player != null ? player.getName() : "Unknown") +
+        broadcastLegacy("§6✨ " + (player != null ? player.getName() : "Unknown") +
             " found a " + chest.getRarity().getDisplay() + " §6treasure!");
 
         return true;
@@ -149,7 +153,7 @@ public class TreasureManager {
             spawnTreasure(loc, rarity);
         }
 
-        Bukkit.broadcastMessage("§6✨ " + count + " treasures have been hidden around the world!");
+        broadcastLegacy("§6✨ " + count + " treasures have been hidden around the world!");
     }
 
     /**
@@ -173,5 +177,13 @@ public class TreasureManager {
         if (expireTask != null) {
             expireTask.cancel();
         }
+    }
+
+    private Component legacy(String message) {
+        return LegacyComponentSerializer.legacySection().deserialize(message);
+    }
+
+    private void broadcastLegacy(String message) {
+        Bukkit.broadcast(legacy(message));
     }
 }

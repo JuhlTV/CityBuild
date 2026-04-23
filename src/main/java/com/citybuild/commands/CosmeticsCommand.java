@@ -14,11 +14,9 @@ import org.bukkit.entity.Player;
  */
 public class CosmeticsCommand implements CommandExecutor {
 
-    private final CityBuildPlugin plugin;
     private final CosmeticsManager cosmeticsManager;
 
     public CosmeticsCommand(CityBuildPlugin plugin, CosmeticsManager cosmeticsManager) {
-        this.plugin = plugin;
         this.cosmeticsManager = cosmeticsManager;
     }
 

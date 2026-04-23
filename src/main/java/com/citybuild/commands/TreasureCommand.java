@@ -1,5 +1,6 @@
 package com.citybuild.commands;
 
+import com.citybuild.features.treasures.TreasureChest;
 import com.citybuild.features.treasures.TreasureManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -60,7 +61,7 @@ public class TreasureCommand implements CommandExecutor {
         player.sendMessage("§e╚════════════════════════════════════════╝");
         player.sendMessage("");
 
-        java.util.Collection treasures = treasureManager.getHiddenTreasures();
+        java.util.Collection<TreasureChest> treasures = treasureManager.getHiddenTreasures();
         if (treasures.isEmpty()) {
             player.sendMessage("§c❌ No treasures currently hidden!");
         } else {

@@ -7,12 +7,10 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Global exception handler for consistent error handling and player feedback
  */
 public class ExceptionHandler {
-    
-    private final JavaPlugin plugin;
+
     private final CityBuildLogger logger;
     
     public ExceptionHandler(JavaPlugin plugin, CityBuildLogger logger) {
-        this.plugin = plugin;
         this.logger = logger;
     }
     

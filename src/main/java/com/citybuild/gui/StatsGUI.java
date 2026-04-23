@@ -2,6 +2,7 @@ package com.citybuild.gui;
 
 import com.citybuild.CityBuildPlugin;
 import com.citybuild.features.farming.PlayerFarmData;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,7 +31,7 @@ public class StatsGUI extends BaseInventoryGUI {
         org.bukkit.inventory.meta.SkullMeta skullMeta = (org.bukkit.inventory.meta.SkullMeta) head.getItemMeta();
         if (skullMeta != null) {
             skullMeta.setOwningPlayer(targetPlayer);
-            skullMeta.setDisplayName("§6" + targetPlayer.getName());
+            skullMeta.displayName(LegacyComponentSerializer.legacySection().deserialize("§6" + targetPlayer.getName()));
             head.setItemMeta(skullMeta);
         }
         inventory.setItem(4, head);

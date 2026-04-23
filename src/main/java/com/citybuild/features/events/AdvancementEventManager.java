@@ -1,5 +1,7 @@
 package com.citybuild.features.events;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -53,12 +55,12 @@ public class AdvancementEventManager {
         AdvancementEvent event = new AdvancementEvent(eventId, eventName, description, type, reward1, reward2, reward3);
         activeEvents.put(eventId, event);
 
-        Bukkit.broadcastMessage("§6╔════════════════════════════════════════╗");
-        Bukkit.broadcastMessage("§6║ 🎪 NEW ADVANCEMENT EVENT");
-        Bukkit.broadcastMessage("§6╚════════════════════════════════════════╝");
-        Bukkit.broadcastMessage("§e" + eventName + " §7(" + type.getDisplay() + ")");
-        Bukkit.broadcastMessage("§7" + description);
-        Bukkit.broadcastMessage("§6Use §e/event view §6to join!");
+        broadcastLegacy("§6╔════════════════════════════════════════╗");
+        broadcastLegacy("§6║ 🎪 NEW ADVANCEMENT EVENT");
+        broadcastLegacy("§6╚════════════════════════════════════════╝");
+        broadcastLegacy("§e" + eventName + " §7(" + type.getDisplay() + ")");
+        broadcastLegacy("§7" + description);
+        broadcastLegacy("§6Use §e/event view §6to join!");
 
         return eventId;
     }
@@ -107,9 +109,9 @@ public class AdvancementEventManager {
                     .toList();
 
             // Distribute rewards
-            Bukkit.broadcastMessage("§6╔════════════════════════════════════════╗");
-            Bukkit.broadcastMessage("§6║ EVENT FINISHED: " + event.getEventName());
-            Bukkit.broadcastMessage("§6╚════════════════════════════════════════╝");
+            broadcastLegacy("§6╔════════════════════════════════════════╗");
+            broadcastLegacy("§6║ EVENT FINISHED: " + event.getEventName());
+            broadcastLegacy("§6╚════════════════════════════════════════╝");
 
             for (int i = 0; i < topPlayers.size(); i++) {
                 Map.Entry<java.util.UUID, Double> entry = topPlayers.get(i);
@@ -128,7 +130,7 @@ public class AdvancementEventManager {
                     default -> "";
                 };
 
-                Bukkit.broadcastMessage(place + " §7[§e" + (i + 1) + "§7]: §6$" + String.format("%.0f", reward));
+                broadcastLegacy(place + " §7[§e" + (i + 1) + "§7]: §6$" + String.format("%.0f", reward));
 
                 if (player != null) {
                     player.sendMessage("§a✓ You won §6$" + String.format("%.0f", reward) + " §ain the event!");
@@ -178,5 +180,13 @@ public class AdvancementEventManager {
         if (eventCheckTask != null) {
             eventCheckTask.cancel();
         }
+    }
+
+    private Component legacy(String message) {
+        return LegacyComponentSerializer.legacySection().deserialize(message);
+    }
+
+    private void broadcastLegacy(String message) {
+        Bukkit.broadcast(legacy(message));
     }
 }

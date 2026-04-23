@@ -205,7 +205,6 @@ public class QuestManager {
     private void startQuestTasks() {
         // Reset daily quests every 24 hours
         questResetTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            long now = System.currentTimeMillis();
             playerCompletedQuests.forEach((uuid, completedQuests) -> {
                 completedQuests.removeIf(questId -> {
                     Quest quest = allQuests.get(questId);
@@ -217,7 +216,6 @@ public class QuestManager {
 
         // Weekly quest reset
         questExpiryTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            long now = System.currentTimeMillis();
             playerCompletedQuests.forEach((uuid, completedQuests) -> {
                 completedQuests.removeIf(questId -> {
                     Quest quest = allQuests.get(questId);

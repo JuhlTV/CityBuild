@@ -2,13 +2,13 @@ package com.citybuild.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -59,7 +59,8 @@ public class AchievementPersistence {
         }
 
         try (FileReader reader = new FileReader(achievementsFile)) {
-            Map<String, Map<String, Object>> data = gson.fromJson(reader, Map.class);
+            Type mapType = new TypeToken<Map<String, Map<String, Object>>>() {}.getType();
+            Map<String, Map<String, Object>> data = gson.fromJson(reader, mapType);
             return data != null ? data : new HashMap<>();
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to load achievements: " + e.getMessage());

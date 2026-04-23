@@ -14,7 +14,6 @@ public class AsyncDataSaver {
     private final JavaPlugin plugin;
     private final BukkitScheduler scheduler;
     private final ExecutorService threadPool;
-    private final BlockingQueue<SaveTask> taskQueue;
     
     public AsyncDataSaver(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -25,7 +24,6 @@ public class AsyncDataSaver {
             thread.setDaemon(true);
             return thread;
         });
-        this.taskQueue = new LinkedBlockingQueue<>();
     }
     
     /**
@@ -113,16 +111,4 @@ public class AsyncDataSaver {
         });
     }
     
-    /**
-     * Internal task wrapper
-     */
-    private static class SaveTask {
-        Runnable task;
-        long timestamp;
-        
-        SaveTask(Runnable task) {
-            this.task = task;
-            this.timestamp = System.currentTimeMillis();
-        }
-    }
 }

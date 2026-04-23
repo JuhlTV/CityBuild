@@ -1,6 +1,5 @@
 package com.citybuild.commands;
 
-import com.citybuild.features.arenas.MobArena;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

@@ -1,9 +1,13 @@
 package com.citybuild.features.dungeons;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -41,12 +45,12 @@ public class DungeonManager {
         Dungeon dungeon = new Dungeon(dungeonId, name, description, maxPlayers, durationMinutes);
         dungeons.put(dungeonId, dungeon);
 
-        Bukkit.broadcastMessage("§6╔════════════════════════════════════════╗");
-        Bukkit.broadcastMessage("§6║ ⚔️  NEW DUNGEON AVAILABLE");
-        Bukkit.broadcastMessage("§6╚════════════════════════════════════════╝");
-        Bukkit.broadcastMessage("§e" + name);
-        Bukkit.broadcastMessage("§7" + description);
-        Bukkit.broadcastMessage("§6Use §e/dungeon list §6to enter!");
+        broadcastLegacy("§6╔════════════════════════════════════════╗");
+        broadcastLegacy("§6║ ⚔️  NEW DUNGEON AVAILABLE");
+        broadcastLegacy("§6╚════════════════════════════════════════╝");
+        broadcastLegacy("§e" + name);
+        broadcastLegacy("§7" + description);
+        broadcastLegacy("§6Use §e/dungeon list §6to enter!");
 
         return dungeonId;
     }
@@ -118,11 +122,11 @@ public class DungeonManager {
 
             Player player = Bukkit.getPlayer(playerUUID);
             if (player != null) {
-                player.sendTitle(
-                    "§a✓ DUNGEON COMPLETE!",
-                    "§6+" + String.format("%.0f", difficulty.getReward()),
-                    10, 40, 10
-                );
+                player.showTitle(Title.title(
+                    legacy("§a✓ DUNGEON COMPLETE!"),
+                    legacy("§6+" + String.format("%.0f", difficulty.getReward())),
+                    Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(2), Duration.ofMillis(500))
+                ));
                 player.sendMessage("§a✓ Dungeon completed on " + difficulty.getDisplay() + "§a!");
                 player.sendMessage("§6Reward: $" + String.format("%.0f", difficulty.getReward()));
             }
@@ -158,5 +162,13 @@ public class DungeonManager {
             .mapToDouble(Dungeon::getTotalRewardsDistributed)
             .sum());
         return stats;
+    }
+
+    private Component legacy(String message) {
+        return LegacyComponentSerializer.legacySection().deserialize(message);
+    }
+
+    private void broadcastLegacy(String message) {
+        Bukkit.broadcast(legacy(message));
     }
 }

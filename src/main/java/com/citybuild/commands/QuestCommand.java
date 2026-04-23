@@ -16,11 +16,9 @@ import java.util.List;
  */
 public class QuestCommand implements CommandExecutor {
 
-    private final CityBuildPlugin plugin;
     private final QuestManager questManager;
 
     public QuestCommand(CityBuildPlugin plugin, QuestManager questManager) {
-        this.plugin = plugin;
         this.questManager = questManager;
     }
 

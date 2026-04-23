@@ -1,8 +1,11 @@
 package com.citybuild.features.ranking;
 
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -46,11 +49,11 @@ public class RankingManager {
         if (newRank.getMinPoints() > oldRank.getMinPoints()) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                player.sendTitle(
-                    "§6⭐ RANK UP! ⭐",
-                    newRank.getFormattedDisplay(),
-                    10, 60, 10
-                );
+                player.showTitle(Title.title(
+                    LegacyComponentSerializer.legacySection().deserialize("§6⭐ RANK UP! ⭐"),
+                    LegacyComponentSerializer.legacySection().deserialize(newRank.getFormattedDisplay()),
+                    Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500))
+                ));
                 player.playSound(
                     player.getLocation(),
                     org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE,
@@ -86,7 +89,6 @@ public class RankingManager {
      * Get formatted progress bar for rank progression
      */
     public String getProgressBar(UUID uuid, int currentPoints) {
-        Rank rank = Rank.getRankForPoints(currentPoints);
         int progress = getProgressPercentage(uuid, currentPoints);
         
         int filled = progress / 10;

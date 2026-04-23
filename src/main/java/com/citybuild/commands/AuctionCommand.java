@@ -17,11 +17,9 @@ import java.util.List;
  */
 public class AuctionCommand implements CommandExecutor {
 
-    private final CityBuildPlugin plugin;
     private final AuctionHouseManager auctionHouseManager;
 
     public AuctionCommand(CityBuildPlugin plugin, AuctionHouseManager auctionHouseManager) {
-        this.plugin = plugin;
         this.auctionHouseManager = auctionHouseManager;
     }
 

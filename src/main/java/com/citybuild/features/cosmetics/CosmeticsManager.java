@@ -1,8 +1,11 @@
 package com.citybuild.features.cosmetics;
 
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -86,11 +89,11 @@ public class CosmeticsManager {
         
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null) {
-            player.sendTitle(
-                "§6⭐ PRESTIGE UP! ⭐",
-                "§eLv. " + cosmetics.getPrestigeLevel(),
-                10, 60, 10
-            );
+            player.showTitle(Title.title(
+                LegacyComponentSerializer.legacySection().deserialize("§6⭐ PRESTIGE UP! ⭐"),
+                LegacyComponentSerializer.legacySection().deserialize("§eLv. " + cosmetics.getPrestigeLevel()),
+                Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500))
+            ));
             
             // Broadcast prestige achievement
             Bukkit.getOnlinePlayers().forEach(p -> {

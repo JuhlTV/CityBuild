@@ -8,19 +8,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.time.*;
-import java.util.*;
 
 /**
  * Enhanced leaderboard command with time-based rankings and statistics
  */
 public class EnhancedLeaderboardCommand implements CommandExecutor {
-    
-    private final CityBuildPlugin plugin;
-    private final LeaderboardManager leaderboardManager;
-    
+
     public EnhancedLeaderboardCommand(CityBuildPlugin plugin, LeaderboardManager leaderboardManager) {
-        this.plugin = plugin;
-        this.leaderboardManager = leaderboardManager;
+        // Reserved for future leaderboard-backed command output.
     }
     
     @Override

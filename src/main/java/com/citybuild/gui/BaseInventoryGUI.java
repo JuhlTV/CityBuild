@@ -1,11 +1,12 @@
 package com.citybuild.gui;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 
 /**
  * Base class for all inventory-based GUIs
@@ -21,7 +22,7 @@ public abstract class BaseInventoryGUI implements InventoryHolder {
         this.player = player;
         this.title = title;
         this.size = size;
-        this.inventory = Bukkit.createInventory(this, size, title);
+        this.inventory = Bukkit.createInventory(this, size, legacy(title));
     }
 
     /**
@@ -54,7 +55,7 @@ public abstract class BaseInventoryGUI implements InventoryHolder {
             for (String line : lore) {
                 loreList.add(line);
             }
-            meta.setLore(loreList);
+            meta.lore(toComponents(loreList));
             item.setItemMeta(meta);
         }
 
@@ -68,7 +69,7 @@ public abstract class BaseInventoryGUI implements InventoryHolder {
         ItemStack filler = new ItemStack(org.bukkit.Material.GRAY_STAINED_GLASS_PANE);
         org.bukkit.inventory.meta.ItemMeta meta = filler.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName("§8");
+            meta.displayName(legacy("§8"));
             filler.setItemMeta(meta);
         }
         return filler;
@@ -81,12 +82,12 @@ public abstract class BaseInventoryGUI implements InventoryHolder {
         ItemStack item = new ItemStack(material);
         org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
+            meta.displayName(legacy(name));
             java.util.List<String> loreList = new java.util.ArrayList<>();
             for (String line : lore) {
                 loreList.add(line);
             }
-            meta.setLore(loreList);
+            meta.lore(toComponents(loreList));
             item.setItemMeta(meta);
         }
         return item;
@@ -117,5 +118,17 @@ public abstract class BaseInventoryGUI implements InventoryHolder {
     @Override
     public Inventory getInventory() {
         return inventory;
+    }
+
+    private Component legacy(String text) {
+        return LegacyComponentSerializer.legacySection().deserialize(text);
+    }
+
+    private java.util.List<Component> toComponents(java.util.List<String> lines) {
+        java.util.List<Component> components = new java.util.ArrayList<>();
+        for (String line : lines) {
+            components.add(legacy(line));
+        }
+        return components;
     }
 }

@@ -24,7 +24,6 @@ import com.citybuild.protection.WorldGuardAdapter;
 import com.citybuild.storage.GuildPersistence;
 import com.citybuild.storage.TradePersistence;
 import com.citybuild.storage.AuctionPersistence;
-import com.citybuild.storage.AchievementPersistence;
 import com.citybuild.features.farming.PlayerFarmDataManager;
 import com.citybuild.gui.GUIManager;
 import com.citybuild.listeners.InventoryClickListener;
@@ -50,20 +49,12 @@ import com.citybuild.commands.BiomeCommand;
 import com.citybuild.commands.TeleportCommand;
 import com.citybuild.commands.ArenaCommand;
 import com.citybuild.commands.EnhancedLeaderboardCommand;
+import com.citybuild.commands.CityBuildCommand;
 import com.citybuild.features.biomes.BiomeGenerator;
 import com.citybuild.features.biomes.ExtendedBiomeGenerator;
 import com.citybuild.features.teleportation.TeleportationHub;
-import com.citybuild.features.arenas.MobArena;
 import com.citybuild.features.leaderboard.LeaderboardPersistence;
-import com.citybuild.util.SoundEffects;
-import com.citybuild.util.ParticleEffects;
-import com.citybuild.util.MessageManager;
-import com.citybuild.util.ValidationUtil;
-import com.citybuild.util.JSONSafetyWrapper;
 import com.citybuild.util.AsyncDataSaver;
-import com.citybuild.util.CityBuildConstants;
-import com.citybuild.util.CityBuildLogger;
-import com.citybuild.util.ExceptionHandler;
 import java.util.Objects;
 
 /**
@@ -238,6 +229,8 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new TeleportCommand(teleportationHub));
         Objects.requireNonNull(getCommand("arena"), "arena command not found in plugin.yml")
             .setExecutor(new ArenaCommand());
+        Objects.requireNonNull(getCommand("citybuild"), "citybuild command not found in plugin.yml")
+            .setExecutor(new CityBuildCommand(plotManager));
         
         getLogger().info("✓ Commands registered");
     }

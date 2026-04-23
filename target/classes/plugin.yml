@@ -88,6 +88,10 @@ commands:
     description: Mob arena battles
     usage: /arena <list|enter|leave|stats>
     aliases: [battle, combat]
+  citybuild:
+    description: CityBuild shortcut commands
+    usage: /citybuild <buy|tpplot|sell|info>
+    aliases: [cb]
 
 permissions:
   citybuild.plot.buy:

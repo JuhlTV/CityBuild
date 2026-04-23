@@ -1,5 +1,6 @@
 package com.citybuild.features.plots;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import com.citybuild.storage.DataManager;
@@ -278,6 +279,26 @@ public class PlotManager {
     public Plot getPlayerPlot(Player player) {
         String plotId = playerPlots.get(player.getUniqueId().toString());
         return plotId != null ? plots.get(plotId) : null;
+    }
+
+    /**
+     * Teleport player to the center of their main plot.
+     */
+    public boolean teleportToPlayerPlot(Player player) {
+        Plot plot = getPlayerPlot(player);
+        if (plot == null) {
+            player.sendMessage("§cDu besitzt kein Plot!");
+            return false;
+        }
+
+        double centerX = (plot.getX1() + plot.getX2()) / 2.0 + 0.5;
+        double centerZ = (plot.getZ1() + plot.getZ2()) / 2.0 + 0.5;
+        double y = plot.getY() + 1.0;
+
+        Location target = new Location(player.getWorld(), centerX, y, centerZ, player.getLocation().getYaw(), player.getLocation().getPitch());
+        player.teleport(target);
+        player.sendMessage("§a✅ Teleportiert zu deinem Plot: §e" + plot.getPlotId());
+        return true;
     }
     
     /**

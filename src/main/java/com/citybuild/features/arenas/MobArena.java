@@ -1,7 +1,6 @@
 package com.citybuild.features.arenas;
 
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
