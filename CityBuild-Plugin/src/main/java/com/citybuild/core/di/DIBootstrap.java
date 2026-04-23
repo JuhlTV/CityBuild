@@ -4,18 +4,22 @@ import com.citybuild.CityBuildPlugin;
 import com.citybuild.core.commands.CommandRegistry;
 import com.citybuild.core.events.EventDispatcher;
 import com.citybuild.core.services.*;
+import com.citybuild.core.async.AsyncExecutor;
+import com.citybuild.core.metrics.MetricsCollector;
+import com.citybuild.core.monitor.PerformanceMonitor;
 import com.citybuild.managers.*;
 import java.util.logging.Logger;
 
 /**
  * DIBootstrap - Initializes the dependency injection container
- * Registers all managers, services, and core components
+ * Registers all managers, services, core components, and performance monitoring
  * Called once during plugin startup
  */
 public class DIBootstrap {
     private final CityBuildPlugin plugin;
     private final Container container;
     private final Logger logger;
+    private PerformanceMonitor performanceMonitor;
     
     public DIBootstrap(CityBuildPlugin plugin, Logger logger) {
         this.plugin = plugin;
@@ -33,6 +37,9 @@ public class DIBootstrap {
         // Register core components first
         registerCoreComponents();
         
+        // Register Phase 2 components (performance monitoring)
+        registerPhase2Components();
+        
         // Register managers (all 22 of them)
         registerManagers();
         
@@ -46,6 +53,26 @@ public class DIBootstrap {
                    " singletons, " + container.getBindingCount() + " bindings)");
         
         return container;
+    }
+    
+    /**
+     * Register Phase 2 Performance Monitoring components
+     */
+    private void registerPhase2Components() {
+        // Create and register performance monitor
+        PerformanceMonitor monitor = new PerformanceMonitor(logger);
+        container.registerSingleton(PerformanceMonitor.class, monitor);
+        this.performanceMonitor = monitor;
+        
+        // Register async executor
+        AsyncExecutor asyncExecutor = monitor.getAsyncExecutor();
+        container.registerSingleton(AsyncExecutor.class, asyncExecutor);
+        
+        // Register metrics collector
+        MetricsCollector metrics = monitor.getMetrics();
+        container.registerSingleton(MetricsCollector.class, metrics);
+        
+        logger.info("✅ Phase 2 components registered (Performance, Async, Metrics)");
     }
     
     /**
@@ -144,5 +171,12 @@ public class DIBootstrap {
      */
     public Container getContainer() {
         return container;
+    }
+    
+    /**
+     * Get the performance monitor
+     */
+    public PerformanceMonitor getPerformanceMonitor() {
+        return performanceMonitor;
     }
 }
