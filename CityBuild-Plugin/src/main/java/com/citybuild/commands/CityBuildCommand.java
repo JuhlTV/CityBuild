@@ -20,6 +20,7 @@ public class CityBuildCommand implements CommandExecutor {
     private final CityBuildPlugin plugin;
     private final EconomyManager economy;
     private final PlotManager plots;
+    private final EconomyCommandHandler economyHandler;
     private final java.util.Map<String, Long> teleportCooldowns = new java.util.HashMap<>();
     private final long TELEPORT_COOLDOWN_MS = 3000; // 3 seconds
 
@@ -27,6 +28,7 @@ public class CityBuildCommand implements CommandExecutor {
         this.plugin = plugin;
         this.economy = plugin.getEconomyManager();
         this.plots = plugin.getPlotManager();
+        this.economyHandler = new EconomyCommandHandler(plugin);
     }
 
     @Override
@@ -76,6 +78,8 @@ public class CityBuildCommand implements CommandExecutor {
                 return handleSell(player);
             case "balance":
                 return handleBalance(player);
+            case "economy":
+                return economyHandler.handleEconomyCommand(player, args);
             case "info":
                 return handleInfo(player);
             case "leaderboard":
@@ -101,14 +105,13 @@ public class CityBuildCommand implements CommandExecutor {
             case "members":
                 return handleMembers(player);
             case "help":
-                sendHelp(player);
-                return true;
+                return HelpCommandHandler.handleHelpCommand(player, args);
             case "config":
                 return handleConfig(player, args);
             case "admin":
                 return handleAdmin(player, args);
             default:
-                sendHelp(player);
+                HelpCommandHandler.handleHelpCommand(player, new String[]{"help"});
                 return true;
         }
     }
