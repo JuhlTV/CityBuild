@@ -487,6 +487,7 @@ A: Yes. Each generates profit independently. Scale to your management capacity.
 ---
 
 ## Version History
+- **v4.3.0**: Enhanced economy balancing, performance optimization
 - **v4.0.0**: Added Auctions, Banking, Insurance, Rentals, Quests
 - **v3.2.0**: Plot Markets, Taxes, Businesses, Stocks (4 core systems)
 - **v3.0.0**: Basic plot system with protection

@@ -787,4 +787,4 @@
 
 ---
 
-**Total Commands**: 50+ | **Permissions Required**: Most player-based, admins for enforcement | **Last Updated**: v4.0.0
+**Total Commands**: 50+ | **Permissions Required**: Most player-based, admins for enforcement | **Last Updated**: v4.3.0
