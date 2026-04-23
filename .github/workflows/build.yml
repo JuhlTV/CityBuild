@@ -23,7 +23,7 @@ jobs:
       run: mvn clean package -DskipTests
     
     - name: Upload JAR as Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: CityBuildPlugin
         path: target/CityBuildPlugin-1.0-SNAPSHOT.jar
