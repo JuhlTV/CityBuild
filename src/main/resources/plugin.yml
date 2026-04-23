@@ -44,6 +44,10 @@ commands:
     description: Auction house commands
     usage: /auction <create|list|bid|my|info|cancel|stats>
     aliases: [ah]
+  cosmetics:
+    description: Cosmetics and customization
+    usage: /cosmetics <title|color|rainbow|particles|info|reset>
+    aliases: [cosmetic, skins]
 
 permissions:
   citybuild.plot.buy:
@@ -75,4 +79,7 @@ permissions:
     default: true
   citybuild.auction:
     description: Auction house commands
+    default: true
+  citybuild.cosmetics:
+    description: Cosmetics and customization
     default: true

@@ -12,7 +12,10 @@ import com.citybuild.features.trading.TradingManager;
 import com.citybuild.features.guilds.GuildManager;
 import com.citybuild.features.ranking.RankingManager;
 import com.citybuild.features.auctions.AuctionHouseManager;
-import com.citybuild.gui.GUIManager;
+import com.citybuild.features.cosmetics.CosmeticsManager;
+import com.citybuild.storage.GuildPersistence;
+import com.citybuild.storage.TradePersistence;
+import com.citybuild.storage.AuctionPersistence;
 import com.citybuild.features.farming.PlayerFarmDataManager;
 import com.citybuild.listeners.InventoryClickListener;
 import com.citybuild.listeners.PlotProtectionListener;
@@ -26,6 +29,7 @@ import com.citybuild.commands.GuildCommand;
 import com.citybuild.commands.TradeCommand;
 import com.citybuild.commands.RankCommand;
 import com.citybuild.commands.AuctionCommand;
+import com.citybuild.commands.CosmeticsCommand;
 import java.util.Objects;
 
 /**
@@ -47,6 +51,10 @@ public class CityBuildPlugin extends JavaPlugin {
     private GuildManager guildManager;
     private RankingManager rankingManager;
     private AuctionHouseManager auctionHouseManager;
+    private CosmeticsManager cosmeticsManager;
+    private GuildPersistence guildPersistence;
+    private TradePersistence tradePersistence;
+    private AuctionPersistence auctionPersistence;
     private PlayerFarmDataManager farmDataManager;
 
     @Override
@@ -115,6 +123,10 @@ public class CityBuildPlugin extends JavaPlugin {
         this.guildManager = new GuildManager(this);
         this.rankingManager = new RankingManager();
         this.auctionHouseManager = new AuctionHouseManager(this, economyManager);
+        this.cosmeticsManager = new CosmeticsManager();
+        this.guildPersistence = new GuildPersistence(this);
+        this.tradePersistence = new TradePersistence(this);
+        this.auctionPersistence = new AuctionPersistence(this);
         this.farmDataManager = new PlayerFarmDataManager(this, dataManager);
         
         getLogger().info("✓ Managers initialized with JSON persistence");
@@ -141,6 +153,8 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new RankCommand(this));
         Objects.requireNonNull(getCommand("auction"), "auction command not found in plugin.yml")
             .setExecutor(new AuctionCommand(this, auctionHouseManager));
+        Objects.requireNonNull(getCommand("cosmetics"), "cosmetics command not found in plugin.yml")
+            .setExecutor(new CosmeticsCommand(this, cosmeticsManager));
         
         getLogger().info("✓ Commands registered");
     }
@@ -206,6 +220,22 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public AuctionHouseManager getAuctionHouseManager() {
         return auctionHouseManager;
+    }
+    
+    public CosmeticsManager getCosmeticsManager() {
+        return cosmeticsManager;
+    }
+    
+    public GuildPersistence getGuildPersistence() {
+        return guildPersistence;
+    }
+    
+    public TradePersistence getTradePersistence() {
+        return tradePersistence;
+    }
+    
+    public AuctionPersistence getAuctionPersistence() {
+        return auctionPersistence;
     }
     
     public PlayerFarmDataManager getFarmDataManager() {
