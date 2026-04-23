@@ -3,6 +3,7 @@ package com.citybuild.features.achievements;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import com.citybuild.storage.AchievementPersistence;
 
 import java.util.*;
 
@@ -16,10 +17,13 @@ public class AchievementManager {
     private final Plugin plugin;
     private final Map<String, Achievement> allAchievements = new HashMap<>();
     private final Map<UUID, Map<String, Achievement>> playerAchievements = new HashMap<>();
+    private final AchievementPersistence achievementPersistence;
     
     public AchievementManager(Plugin plugin) {
         this.plugin = plugin;
+        this.achievementPersistence = new AchievementPersistence(plugin);
         initializeAchievements();
+        loadAllData();
     }
     
     /**
@@ -217,17 +221,107 @@ public class AchievementManager {
     }
     
     /**
-     * Save single player data
+     * Save single player data to JSON
      */
     public void savePlayerData(UUID playerUUID) {
-        // Achievements are currently in-memory only
+        Map<String, Achievement> playerAchs = playerAchievements.get(playerUUID);
+        if (playerAchs == null) return;
+        
+        Map<String, Object> playerData = new HashMap<>();
+        for (Map.Entry<String, Achievement> entry : playerAchs.entrySet()) {
+            Achievement ach = entry.getValue();
+            Map<String, Object> achData = new HashMap<>();
+            achData.put("name", ach.getName());
+            achData.put("description", ach.getDescription());
+            achData.put("progress", ach.getCurrentProgress());
+            achData.put("unlocked", ach.isUnlocked());
+            achData.put("rarity", ach.getRarity().name());
+            playerData.put(entry.getKey(), achData);
+        }
+        
+        achievementPersistence.savePlayerAchievements(playerUUID.toString(), playerData);
     }
     
     /**
      * Save all player data on server shutdown
      */
     public void saveAllData() {
-        // Achievements are currently in-memory only
-        plugin.getLogger().info("✓ Achievements saved to memory");
+        Map<String, Map<String, Object>> allData = new HashMap<>();
+        
+        for (UUID playerUUID : playerAchievements.keySet()) {
+            Map<String, Achievement> playerAchs = playerAchievements.get(playerUUID);
+            Map<String, Object> playerData = new HashMap<>();
+            
+            for (Map.Entry<String, Achievement> entry : playerAchs.entrySet()) {
+                Achievement ach = entry.getValue();
+                Map<String, Object> achData = new HashMap<>();
+                achData.put("name", ach.getName());
+                achData.put("description", ach.getDescription());
+                achData.put("progress", ach.getCurrentProgress());
+                achData.put("unlocked", ach.isUnlocked());
+                achData.put("rarity", ach.getRarity().name());
+                playerData.put(entry.getKey(), achData);
+            }
+            
+            allData.put(playerUUID.toString(), playerData);
+        }
+        
+        achievementPersistence.saveAllAchievements(allData);
+        plugin.getLogger().info("✓ All achievements saved to JSON");
+    }
+    
+    /**
+     * Load all player data from JSON
+     */
+    public void loadAllData() {
+        Map<String, Map<String, Object>> allData = achievementPersistence.loadAllAchievements();
+        
+        for (Map.Entry<String, Map<String, Object>> playerEntry : allData.entrySet()) {
+            try {
+                UUID playerUUID = UUID.fromString(playerEntry.getKey());
+                Map<String, Object> playerData = playerEntry.getValue();
+                
+                Map<String, Achievement> playerAchs = new HashMap<>();
+                
+                for (Map.Entry<String, Object> achEntry : playerData.entrySet()) {
+                    String achId = achEntry.getKey();
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> achData = (Map<String, Object>) achEntry.getValue();
+                    
+                    Achievement baseAch = allAchievements.get(achId);
+                    if (baseAch != null) {
+                        Achievement playerAch = new Achievement(
+                            baseAch.getId(), baseAch.getName(), baseAch.getDescription(),
+                            baseAch.getCategory(), baseAch.getRarity(),
+                            baseAch.getRewardCoins(), baseAch.getProgressRequired()
+                        );
+                        
+                        // Restore progress
+                        if (achData.containsKey("progress")) {
+                            double progress = ((Number) achData.get("progress")).doubleValue();
+                            playerAch.addProgress((int) progress);
+                        }
+                        
+                        // Restore unlock status
+                        if (achData.containsKey("unlocked")) {
+                            boolean unlocked = (boolean) achData.get("unlocked");
+                            if (unlocked) {
+                                playerAch.setUnlocked(true);
+                            }
+                        }
+                        
+                        playerAchs.put(achId, playerAch);
+                    }
+                }
+                
+                playerAchievements.put(playerUUID, playerAchs);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Invalid UUID in achievements data: " + playerEntry.getKey());
+            }
+        }
+        
+        if (!allData.isEmpty()) {
+            plugin.getLogger().info("✓ Loaded achievements for " + allData.size() + " players");
+        }
     }
 }
