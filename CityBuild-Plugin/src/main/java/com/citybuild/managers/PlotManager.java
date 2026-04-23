@@ -490,6 +490,7 @@ public class PlotManager {
     public void savePlot(PlotData plot) {
         plots.put(plot.getPlotId(), plot);
         saveData();
+        plugin.getLogger().fine("✓ Saved plot #" + plot.getPlotId() + " for " + plot.getOwnerUuid());
     }
 
     /**
