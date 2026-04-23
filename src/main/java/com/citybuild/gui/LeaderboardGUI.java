@@ -25,26 +25,34 @@ public class LeaderboardGUI extends BaseInventoryGUI {
         fillBorders();
 
         // Title
-        ItemStack title = createCustomItem(Material.GOLDEN_BLOCK, "§6📊 LEADERBOARDS", "§7Click to change type");
+        ItemStack title = createCustomItem(Material.GOLD_BLOCK, "§6📊 LEADERBOARDS", "§7Click to change type");
         inventory.setItem(4, title);
 
         // Leaderboard type buttons (row 1)
         inventory.setItem(10, createCustomItem(Material.YELLOW_CONCRETE, "§6💰 RICHEST", "§eTop wealthiest players"));
         inventory.setItem(12, createCustomItem(Material.LIME_CONCRETE, "§a🌾 FARMERS", "§eTop farming income"));
         inventory.setItem(14, createCustomItem(Material.EMERALD_BLOCK, "§a🏗️ PLOT OWNERS", "§eTop plot owners"));
-        inventory.setItem(16, createCustomItem(Material.PURPLE_BLOCK, "§d🏆 ACHIEVEMENTS", "§eTop achievements"));
+        inventory.setItem(16, createCustomItem(Material.PURPLE_CONCRETE, "§d🏆 ACHIEVEMENTS", "§eTop achievements"));
 
         // Display current leaderboard (rows 2-4)
-        String leaderboard = leaderboardManager.getFormattedLeaderboard(currentType);
+        String leaderboard = (String) leaderboardManager.getFormattedLeaderboard(currentType);
+        if (leaderboard == null || leaderboard.isEmpty()) {
+            leaderboard = "§7No entries yet.";
+        }
         String[] lines = leaderboard.split("\n");
 
         int slot = 19;
         for (int i = 0; i < Math.min(lines.length, 25); i++) {
-            if (slot % 9 != 0 && slot % 9 != 8 && slot < 45) {
-                ItemStack item = createCustomItem(Material.PAPER, lines[i]);
-                inventory.setItem(slot, item);
+            while (slot < 45 && (slot % 9 == 0 || slot % 9 == 8)) {
                 slot++;
             }
+            if (slot >= 45) {
+                break;
+            }
+
+            ItemStack item = createCustomItem(Material.PAPER, lines[i]);
+            inventory.setItem(slot, item);
+            slot++;
         }
 
         // Back button

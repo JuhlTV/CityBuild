@@ -70,4 +70,22 @@ public class PlayerFarmDataManager {
             playerData.remove(playerUUID);
         }
     }
+
+    public PlayerFarmData getPlayerFarmData(UUID uniqueId) {
+        if (uniqueId == null) {
+            return null;
+        }
+
+        String uuid = uniqueId.toString();
+        if (!playerData.containsKey(uuid)) {
+            Map<String, Object> data = dataManager.loadPlayerFarmData(uuid);
+            if (data != null && !data.isEmpty()) {
+                playerData.put(uuid, PlayerFarmData.fromMap(uuid, data));
+            } else {
+                playerData.put(uuid, new PlayerFarmData(uuid));
+            }
+        }
+
+        return playerData.get(uuid);
+    }
 }

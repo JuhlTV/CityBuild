@@ -1,6 +1,7 @@
 package com.citybuild.gui;
 
 import com.citybuild.CityBuildPlugin;
+import com.citybuild.features.farming.PlayerFarmData;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -51,7 +52,7 @@ public class StatsGUI extends BaseInventoryGUI {
         // Achievement stats
         int achievements = plugin.getAchievementManager().getUnlockedCount(targetPlayer.getUniqueId());
         int achievementPoints = plugin.getAchievementManager().getPlayerAchievementPoints(targetPlayer.getUniqueId());
-        ItemStack achievementItem = createCustomItem(Material.TROPHY,
+        ItemStack achievementItem = createCustomItem(Material.NETHER_STAR,
             "§6🏆 ACHIEVEMENTS",
             "§e" + achievements + "/16 unlocked",
             "§e" + achievementPoints + " points");
@@ -73,9 +74,9 @@ public class StatsGUI extends BaseInventoryGUI {
         inventory.setItem(28, guildItem);
 
         // Farming stats (if exists)
-        var farmData = plugin.getFarmDataManager().getPlayerFarmData(targetPlayer.getUniqueId());
+        PlayerFarmData farmData = plugin.getFarmDataManager().getPlayerFarmData(targetPlayer.getUniqueId());
         if (farmData != null) {
-            double farmIncome = farmData.getTotalIncome();
+            double farmIncome = farmData.getCoinsEarnedTotal();
             ItemStack farmItem = createCustomItem(Material.WHEAT,
                 "§6🌾 FARMING INCOME",
                 "§e$" + String.format("%.2f", farmIncome));

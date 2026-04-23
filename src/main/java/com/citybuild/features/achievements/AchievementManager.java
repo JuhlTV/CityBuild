@@ -3,6 +3,7 @@ package com.citybuild.features.achievements;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import com.citybuild.storage.AchievementPersistence;
 
 import java.util.*;
@@ -14,12 +15,12 @@ import java.util.*;
  */
 public class AchievementManager {
     
-    private final Plugin plugin;
+    private final JavaPlugin plugin;
     private final Map<String, Achievement> allAchievements = new HashMap<>();
     private final Map<UUID, Map<String, Achievement>> playerAchievements = new HashMap<>();
     private final AchievementPersistence achievementPersistence;
     
-    public AchievementManager(Plugin plugin) {
+    public AchievementManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.achievementPersistence = new AchievementPersistence(plugin);
         initializeAchievements();
@@ -212,12 +213,16 @@ public class AchievementManager {
     
     /**
      * Get percentage of achievements completed
+     * @param playerUUID The player's UUID
+     * @return Completion percentage (0-100), or 0 if no achievements
      */
     public double getCompletionPercentage(UUID playerUUID) {
+        if (playerUUID == null) return 0;
         Map<String, Achievement> playerAchs = getPlayerAchievements(playerUUID);
+        if (playerAchs == null || playerAchs.isEmpty()) return 0;
         int total = playerAchs.size();
         int unlocked = getUnlockedCount(playerUUID);
-        return total > 0 ? (double) unlocked / total * 100 : 0;
+        return total > 0 ? (double) unlocked / total * 100.0 : 0.0;
     }
     
     /**
@@ -248,7 +253,8 @@ public class AchievementManager {
     public void saveAllData() {
         Map<String, Map<String, Object>> allData = new HashMap<>();
         
-        for (UUID playerUUID : playerAchievements.keySet()) {
+        // Use ArrayList snapshot to avoid ConcurrentModificationException
+        for (UUID playerUUID : new ArrayList<>(playerAchievements.keySet())) {
             Map<String, Achievement> playerAchs = playerAchievements.get(playerUUID);
             Map<String, Object> playerData = new HashMap<>();
             
@@ -285,8 +291,15 @@ public class AchievementManager {
                 
                 for (Map.Entry<String, Object> achEntry : playerData.entrySet()) {
                     String achId = achEntry.getKey();
+                    Object achValue = achEntry.getValue();
+                    
+                    // Null-safety check before unchecked cast
+                    if (achValue == null || !(achValue instanceof Map)) {
+                        continue;
+                    }
+                    
                     @SuppressWarnings("unchecked")
-                    Map<String, Object> achData = (Map<String, Object>) achEntry.getValue();
+                    Map<String, Object> achData = (Map<String, Object>) achValue;
                     
                     Achievement baseAch = allAchievements.get(achId);
                     if (baseAch != null) {
@@ -296,17 +309,23 @@ public class AchievementManager {
                             baseAch.getRewardCoins(), baseAch.getProgressRequired()
                         );
                         
-                        // Restore progress
-                        if (achData.containsKey("progress")) {
-                            double progress = ((Number) achData.get("progress")).doubleValue();
-                            playerAch.addProgress((int) progress);
+                        // Restore progress with null-safety
+                        if (achData != null && achData.containsKey("progress")) {
+                            Object progressObj = achData.get("progress");
+                            if (progressObj instanceof Number) {
+                                double progress = ((Number) progressObj).doubleValue();
+                                playerAch.addProgress((int) progress);
+                            }
                         }
                         
-                        // Restore unlock status
-                        if (achData.containsKey("unlocked")) {
-                            boolean unlocked = (boolean) achData.get("unlocked");
-                            if (unlocked) {
-                                playerAch.setUnlocked(true);
+                        // Restore unlock status with null-safety
+                        if (achData != null && achData.containsKey("unlocked")) {
+                            Object unlockedObj = achData.get("unlocked");
+                            if (unlockedObj instanceof Boolean) {
+                                boolean unlocked = (Boolean) unlockedObj;
+                                if (unlocked) {
+                                    playerAch.setUnlocked(true);
+                                }
                             }
                         }
                         

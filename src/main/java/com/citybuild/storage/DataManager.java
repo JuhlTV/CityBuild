@@ -311,13 +311,17 @@ public class DataManager {
         }
 
         public static BlockData fromJson(JsonObject obj) {
-            return new BlockData(
-                obj.get("x").getAsInt(),
-                obj.get("y").getAsInt(),
-                obj.get("z").getAsInt(),
-                obj.get("material").getAsString(),
-                obj.get("data").getAsString()
-            );
+            if (obj == null) return null;
+            try {
+                int x = obj.has("x") ? obj.get("x").getAsInt() : 0;
+                int y = obj.has("y") ? obj.get("y").getAsInt() : 0;
+                int z = obj.has("z") ? obj.get("z").getAsInt() : 0;
+                String material = obj.has("material") ? obj.get("material").getAsString() : "STONE";
+                String data = obj.has("data") ? obj.get("data").getAsString() : "";
+                return new BlockData(x, y, z, material, data);
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 

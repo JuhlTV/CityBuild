@@ -150,7 +150,10 @@ public class GuildManager {
         if (guild == null) return;
         
         guild.addToTreasury(amount);
-        notifyGuildMembers(guild, Bukkit.getPlayer(playerUUID).getName() + " hat §e$" + (int)amount + " §7eingezahlt!");
+        
+        Player player = Bukkit.getPlayer(playerUUID);
+        String playerName = (player != null) ? player.getName() : "Unknown";
+        notifyGuildMembers(guild, playerName + " hat §e$" + (int)amount + " §7eingezahlt!");
     }
     
     /**

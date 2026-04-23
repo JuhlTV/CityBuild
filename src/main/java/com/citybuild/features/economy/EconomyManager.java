@@ -22,9 +22,20 @@ public class EconomyManager {
     }
 
     public void addBalance(Player player, double amount) {
+        if (player == null) return;
         if (amount < 0) throw new IllegalArgumentException("Amount cannot be negative");
+        
         String uuid = player.getUniqueId().toString();
-        double newBalance = getBalance(player) + amount;
+        double currentBalance = getBalance(player);
+        
+        // Prevent overflow: cap at max double value / 2 for safety
+        double maxBalance = Double.MAX_VALUE / 2;
+        if (currentBalance > maxBalance - amount) {
+            player.sendMessage("§cError: Balance overflow prevented!");
+            return;
+        }
+        
+        double newBalance = currentBalance + amount;
         playerBalance.put(uuid, newBalance);
         player.sendMessage("§a+ $" + String.format("%.2f", amount));
         
@@ -53,6 +64,57 @@ public class EconomyManager {
         return playerBalance.getOrDefault(uuid, STARTING_BALANCE);
     }
 
+    /**
+     * Get balance by UUID (for non-player operations like auctions)
+     */
+    public double getBalance(UUID playerUUID) {
+        if (playerUUID == null) return 0;
+        String uuid = playerUUID.toString();
+        return playerBalance.getOrDefault(uuid, STARTING_BALANCE);
+    }
+
+    /**
+     * Add balance by UUID (for non-player operations like auctions)
+     */
+    public void addBalance(UUID playerUUID, double amount) {
+        if (playerUUID == null || amount < 0) return;
+        
+        String uuid = playerUUID.toString();
+        double currentBalance = getBalance(playerUUID);
+        
+        // Prevent overflow: cap at max double value / 2 for safety
+        double maxBalance = Double.MAX_VALUE / 2;
+        if (currentBalance > maxBalance - amount) {
+            return;
+        }
+        
+        double newBalance = currentBalance + amount;
+        playerBalance.put(uuid, newBalance);
+        
+        // Save immediately
+        dataManager.savePlayerEconomy(uuid, newBalance);
+    }
+
+    /**
+     * Remove balance by UUID (for non-player operations like auctions)
+     */
+    public boolean removeBalance(UUID playerUUID, double amount) {
+        if (playerUUID == null || amount < 0) return false;
+        
+        String uuid = playerUUID.toString();
+        double currentBalance = getBalance(playerUUID);
+        
+        if (currentBalance >= amount) {
+            double newBalance = currentBalance - amount;
+            playerBalance.put(uuid, newBalance);
+            
+            // Save immediately
+            dataManager.savePlayerEconomy(uuid, newBalance);
+            return true;
+        }
+        return false;
+    }
+
     public boolean payPlayer(Player sender, Player receiver, double amount) {
         if (amount <= 0) {
             sender.sendMessage("§cAmount must be positive!");
@@ -79,5 +141,10 @@ public class EconomyManager {
     public void loadAllData() {
         plugin.getLogger().info("Loading economy data...");
         // Data loaded on-demand when players join
+    }
+
+    public double getPlayerBalance(UUID uniqueId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPlayerBalance'");
     }
 }

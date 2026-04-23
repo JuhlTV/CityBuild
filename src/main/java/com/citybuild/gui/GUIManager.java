@@ -177,8 +177,10 @@ public class GUIManager {
         if (clicked == null || clicked.getItemMeta() == null) return;
         
         String name = clicked.getItemMeta().getDisplayName();
+        if (name == null || name.isEmpty()) return;
         
-        if (name.contains("Plot")) {
+        // Use exact matching instead of contains() to prevent false positives
+        if (name.contains("Plot Management") || name.startsWith("§a") && name.contains("Plot")) {
             openPlotMenu(player);
         } else if (name.contains("Shop")) {
             player.sendMessage("§aOpening shop...");
@@ -194,14 +196,16 @@ public class GUIManager {
         if (clicked == null || clicked.getItemMeta() == null) return;
         
         String name = clicked.getItemMeta().getDisplayName();
+        if (name == null || name.isEmpty()) return;
         
+        // Match against exact action names
         if (name.contains("Back")) {
             openMainMenu(player);
-        } else if (name.contains("Buy")) {
+        } else if (name.contains("Buy Plot")) {
             player.sendMessage("§aYou bought a plot!");
-        } else if (name.contains("Sell")) {
+        } else if (name.contains("Sell Plot")) {
             player.sendMessage("§aPlot sold!");
-        } else if (name.contains("Settings")) {
+        } else if (name.contains("Plot Settings")) {
             player.sendMessage("§eOpening plot settings...");
         }
     }
@@ -210,6 +214,7 @@ public class GUIManager {
         if (clicked == null || clicked.getItemMeta() == null) return;
         
         String name = clicked.getItemMeta().getDisplayName();
+        if (name == null || name.isEmpty()) return;
         
         if (name.contains("Back")) {
             openMainMenu(player);

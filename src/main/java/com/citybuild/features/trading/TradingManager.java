@@ -175,11 +175,18 @@ public class TradingManager {
     
     /**
      * Notify trade partner
+     * @param initiatorUUID The initiator's UUID
+     * @param trade The trade object
+     * @param message The message to send
      */
     private void notifyTradePartner(UUID initiatorUUID, Trade trade, String message) {
+        if (initiatorUUID == null || trade == null || message == null) return;
+        
         UUID partnerUUID = trade.getPlayer1UUID().equals(initiatorUUID) 
             ? trade.getPlayer2UUID() 
             : trade.getPlayer1UUID();
+        
+        if (partnerUUID == null) return;
         
         Player partner = Bukkit.getPlayer(partnerUUID);
         if (partner != null && partner.isOnline()) {
@@ -187,8 +194,14 @@ public class TradingManager {
         }
     }
     
+    /**
+     * Get safe player name from UUID
+     * @param uuid The player UUID
+     * @return Player name or "Unknown" if player not found
+     */
     private String player(UUID uuid) {
+        if (uuid == null) return "Unknown";
         Player p = Bukkit.getPlayer(uuid);
-        return p != null ? p.getName() : "Player";
+        return p != null ? p.getName() : "Unknown";
     }
 }

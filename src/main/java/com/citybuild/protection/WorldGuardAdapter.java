@@ -1,7 +1,5 @@
 package com.citybuild.protection;
 
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -45,17 +43,21 @@ public class WorldGuardAdapter {
             return true; // Fallback to default permission
         }
 
+        if (player == null || location == null) {
+            return false; // Null-safety check
+        }
+
         try {
             // Use WorldGuard API to check if player can build in region
             World world = location.getWorld();
-            if (world == null) return false;
-
-            // This would integrate with actual WorldGuard API
-            // For now, returning true as placeholder (actual implementation requires WG API)
+            if (world == null) return true; // Fallback if world is invalid
+            
+            // TODO: Integrate actual WorldGuard API for region checking
+            // This is a placeholder - returns true as safe default
             return true;
         } catch (Exception e) {
             plugin.getLogger().warning("Error checking WorldGuard permission: " + e.getMessage());
-            return false;
+            return true; // Fallback to allow building on error
         }
     }
 
@@ -64,11 +66,19 @@ public class WorldGuardAdapter {
      */
     public void createPlotRegion(String plotId, Location corner1, Location corner2) {
         if (!isAvailable) return;
+        
+        // Null-safety checks
+        if (plotId == null || plotId.isEmpty() || corner1 == null || corner2 == null) {
+            plugin.getLogger().warning("Invalid parameters for createPlotRegion");
+            return;
+        }
 
         try {
             // Create protected region for plot
-            plugin.getLogger().info("§6[WorldGuard] Creating region for plot: " + plotId);
-            // Actual implementation would use WorldGuard RegionManager
+            plugin.getLogger().info("§6[WorldGuard] Creating region for plot: " + plotId + 
+                " from (" + corner1.getBlockX() + "," + corner1.getBlockZ() + ") to (" + 
+                corner2.getBlockX() + "," + corner2.getBlockZ() + ")");
+            // TODO: Implement actual WorldGuard RegionManager integration
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create WorldGuard region: " + e.getMessage());
         }
@@ -80,9 +90,15 @@ public class WorldGuardAdapter {
     public void removePlotRegion(String plotId) {
         if (!isAvailable) return;
 
+        // Null-safety check
+        if (plotId == null || plotId.isEmpty()) {
+            plugin.getLogger().warning("Invalid plotId for removePlotRegion");
+            return;
+        }
+
         try {
             plugin.getLogger().info("§6[WorldGuard] Removing region for plot: " + plotId);
-            // Actual implementation would use WorldGuard RegionManager
+            // TODO: Implement actual WorldGuard RegionManager integration
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to remove WorldGuard region: " + e.getMessage());
         }
@@ -94,9 +110,15 @@ public class WorldGuardAdapter {
     public void addMemberToRegion(String plotId, String playerName) {
         if (!isAvailable) return;
 
+        // Null-safety checks
+        if (plotId == null || plotId.isEmpty() || playerName == null || playerName.isEmpty()) {
+            plugin.getLogger().warning("Invalid parameters for addMemberToRegion");
+            return;
+        }
+
         try {
             plugin.getLogger().info("§6[WorldGuard] Adding " + playerName + " to plot region: " + plotId);
-            // Actual implementation would add player to region members
+            // TODO: Implement actual WorldGuard RegionManager integration
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to add member to region: " + e.getMessage());
         }
@@ -108,9 +130,15 @@ public class WorldGuardAdapter {
     public void removeMemberFromRegion(String plotId, String playerName) {
         if (!isAvailable) return;
 
+        // Null-safety checks
+        if (plotId == null || plotId.isEmpty() || playerName == null || playerName.isEmpty()) {
+            plugin.getLogger().warning("Invalid parameters for removeMemberFromRegion");
+            return;
+        }
+
         try {
             plugin.getLogger().info("§6[WorldGuard] Removing " + playerName + " from plot region: " + plotId);
-            // Actual implementation would remove player from region members
+            // TODO: Implement actual WorldGuard RegionManager integration
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to remove member from region: " + e.getMessage());
         }

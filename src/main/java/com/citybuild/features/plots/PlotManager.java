@@ -201,7 +201,16 @@ public class PlotManager {
             return false;
         }
         
-        if (mainPlot.getOwnerUUID() == null || !mainPlot.getOwnerUUID().equals(secondaryPlot.getOwnerUUID())) {
+        // Both plots must be OWNED and have the same owner (prevent merging unowned plots)
+        UUID mainOwner = mainPlot.getOwnerUUID();
+        UUID secondaryOwner = secondaryPlot.getOwnerUUID();
+        
+        if (mainOwner == null || secondaryOwner == null) {
+            admin.sendMessage("§c❌ Both plots must be owned! Cannot merge unowned plots.");
+            return false;
+        }
+        
+        if (!mainOwner.equals(secondaryOwner)) {
             admin.sendMessage("§c❌ Both plots must have the same owner!");
             return false;
         }

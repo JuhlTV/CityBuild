@@ -24,7 +24,7 @@ public class ExtendedBiomeGenerator {
         CORAL_REEF("Coral Reef", Material.BLUE_CONCRETE, Material.BRAIN_CORAL, "Underwater coral gardens"),
         MUSHROOM_LANDS("Mushroom Lands", Material.MAGENTA_CONCRETE, Material.BROWN_MUSHROOM_BLOCK, "Giant mushroom farms"),
         SKY_ISLANDS("Sky Islands", Material.WHITE_CONCRETE, Material.END_STONE, "Floating islands in sky"),
-        NETHER_FORTRESS("Nether Fortress", Material.DARK_RED_CONCRETE, Material.CRIMSON_NETHER_BRICK, "Hell-like fortress"),
+        NETHER_FORTRESS("Nether Fortress", Material.RED_CONCRETE, Material.NETHER_BRICKS, "Hell-like fortress"),
         END_DIMENSION("End Dimension", Material.PURPLE_CONCRETE, Material.END_STONE_BRICKS, "End city replica");
         
         public final String displayName;
@@ -235,7 +235,7 @@ public class ExtendedBiomeGenerator {
             for (int z = -radius; z <= radius; z++) {
                 Block block = world.getBlockAt(center.getBlockX() + x, 64, center.getBlockZ() + z);
                 if (Math.random() > 0.6) {
-                    block.setType(Material.CRIMSON_NETHER_BRICK);
+                    block.setType(Material.NETHER_BRICKS);
                 } else {
                     block.setType(Material.BLACKSTONE);
                 }

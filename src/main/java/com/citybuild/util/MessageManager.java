@@ -1,5 +1,6 @@
 package com.citybuild.util;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -57,10 +58,7 @@ public class MessageManager {
      * Send action bar message (player only)
      */
     public static void sendActionBar(Player player, String message) {
-        player.spigot().sendMessage(
-            net.md_5.bungee.chat.ComponentBuilder(message)
-                .create()
-        );
+        player.sendActionBar(Component.text(message));
     }
 
     /**

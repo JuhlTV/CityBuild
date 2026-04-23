@@ -53,8 +53,8 @@ public class AuctionHouseManager {
             return false;
         }
 
-        // Check if player has enough coins
-        double playerBalance = economyManager.getPlayerBalance(bidderUUID);
+        // Check if player has enough coins (using UUID-variant)
+        double playerBalance = economyManager.getBalance(bidderUUID);
         if (playerBalance < bidAmount) {
             return false;
         }
@@ -99,18 +99,23 @@ public class AuctionHouseManager {
     }
 
     /**
-     * Get player's auctions
+     * Get player's auctions (filters out deleted auctions)
      */
     public List<AuctionItem> getPlayerAuctions(UUID playerUUID) {
         List<AuctionItem> playerAucs = new ArrayList<>();
         Queue<String> auctionIds = playerAuctions.get(playerUUID);
         if (auctionIds != null) {
+            List<String> toRemove = new ArrayList<>();  // Track invalid IDs for cleanup
             for (String id : auctionIds) {
                 AuctionItem item = activeAuctions.get(id);
                 if (item != null) {
                     playerAucs.add(item);
+                } else {
+                    toRemove.add(id);  // Mark for cleanup
                 }
             }
+            // Clean up invalid auction IDs
+            toRemove.forEach(auctionIds::remove);
         }
         return playerAucs;
     }
@@ -125,6 +130,13 @@ public class AuctionHouseManager {
         if (auction.getStatus() != AuctionItem.AuctionStatus.ACTIVE) return false;
 
         auction.cancel();
+        
+        // Also cleanup from playerAuctions
+        Queue<String> playerQueue = playerAuctions.get(playerUUID);
+        if (playerQueue != null) {
+            playerQueue.remove(auctionId);
+        }
+        
         return true;
     }
 
@@ -143,6 +155,12 @@ public class AuctionHouseManager {
             UUID seller = auction.getSellerUUID();
             double amount = auction.getCurrentBid();
 
+            // Safety checks before transaction
+            if (bidder == null || seller == null || amount <= 0) {
+                return;
+            }
+
+            // Use UUID-variants for economy operations
             economyManager.removeBalance(bidder, amount);
             economyManager.addBalance(seller, amount);
 
@@ -167,23 +185,42 @@ public class AuctionHouseManager {
         cleanupTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             List<String> expiredAuctions = new ArrayList<>();
             
-            for (String auctionId : activeAuctions.keySet()) {
+            // Safely collect expired auction IDs first (don't modify during iteration)
+            for (String auctionId : new ArrayList<>(activeAuctions.keySet())) {
                 AuctionItem auction = activeAuctions.get(auctionId);
-                if (auction.isExpired() && auction.getStatus() == AuctionItem.AuctionStatus.ACTIVE) {
+                if (auction != null && auction.isExpired() && auction.getStatus() == AuctionItem.AuctionStatus.ACTIVE) {
                     finishAuction(auctionId);
                     expiredAuctions.add(auctionId);
                 }
             }
 
             // Clean up finished auctions after 1 hour
-            for (AuctionItem auction : activeAuctions.values()) {
-                if (auction.getStatus() != AuctionItem.AuctionStatus.ACTIVE && 
+            for (AuctionItem auction : new ArrayList<>(activeAuctions.values())) {
+                if (auction != null && auction.getStatus() != AuctionItem.AuctionStatus.ACTIVE && 
                     System.currentTimeMillis() - auction.getEndTime() > 3600000) {
                     expiredAuctions.add(auction.getAuctionId());
                 }
             }
 
-            expiredAuctions.forEach(activeAuctions::remove);
+            // Remove all expired auctions at once (safe operation)
+            for (String auctionId : expiredAuctions) {
+                // Get seller BEFORE removing from activeAuctions
+                AuctionItem item = activeAuctions.get(auctionId);
+                
+                // Remove from active auctions
+                activeAuctions.remove(auctionId);
+                
+                // Also cleanup from playerAuctions if seller exists
+                if (item != null) {
+                    UUID sellerUUID = item.getSellerUUID();
+                    if (sellerUUID != null) {
+                        Queue<String> playerQueue = playerAuctions.get(sellerUUID);
+                        if (playerQueue != null) {
+                            playerQueue.remove(auctionId);
+                        }
+                    }
+                }
+            }
         }, 1200, 1200); // Every 60 seconds
     }
 

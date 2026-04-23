@@ -33,7 +33,6 @@ import com.citybuild.commands.PlotCommand;
 import com.citybuild.commands.EconomyCommand;
 import com.citybuild.commands.TerrainCommand;
 import com.citybuild.commands.AdminCommand;
-import com.citybuild.commands.LeaderboardCommand;
 import com.citybuild.commands.AchievementCommand;
 import com.citybuild.commands.GuildCommand;
 import com.citybuild.commands.TradeCommand;

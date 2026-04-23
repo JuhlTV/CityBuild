@@ -11,11 +11,11 @@ import org.bukkit.entity.Player;
 public class ParticleEffects {
 
     public enum EffectType {
-        SUCCESS(Particle.HAPPY_VILLAGER, 20),
+        SUCCESS(Particle.VILLAGER_HAPPY, 20),
         COINS(Particle.VILLAGER_HAPPY, 15),
         ACHIEVEMENT(Particle.COMPOSTER, 25),
-        TREASURE(Particle.ENCHANT, 30),
-        LEVEL_UP(Particle.EXPLOSION, 10),
+        TREASURE(Particle.ENCHANTMENT_TABLE, 30),
+        LEVEL_UP(Particle.EXPLOSION_NORMAL, 10),
         MAGIC(Particle.SPELL_MOB, 20);
 
         private final Particle particle;
