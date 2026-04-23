@@ -1,10 +1,13 @@
 package com.citybuild.features.plots;
 
 import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 import java.time.LocalDateTime;
 
 /**
  * Plot - Represents a single plot with fixed coordinates at Y = -60
+ * Supports co-ownership for collaborative building
  */
 public class Plot {
     private String plotId;
@@ -12,6 +15,7 @@ public class Plot {
     private double price;
     private LocalDateTime createdAt;
     private String biome;
+    private Set<UUID> coOwners;  // Co-owners for collaborative building
     
     // Coordinates (all plots at Y = -60)
     private int x1, z1, x2, z2;
@@ -26,6 +30,7 @@ public class Plot {
         this.price = price;
         this.createdAt = LocalDateTime.now();
         this.biome = "PLAINS";
+        this.coOwners = new HashSet<>();
         
         // Set coordinates
         this.x1 = Math.min(x1, x2);
@@ -86,6 +91,33 @@ public class Plot {
     public boolean isInPlot(int x, int y, int z) {
         return x >= x1 && x <= x2 && z >= z1 && z <= z2;
     }
+    
+    // Co-Owner Methods
+    public boolean addCoOwner(UUID playerUUID) {
+        if (ownerUUID == null) return false; // Cannot add co-owners to unowned plots
+        if (playerUUID.equals(ownerUUID)) return false; // Owner cannot be co-owner
+        return coOwners.add(playerUUID);
+    }
+    
+    public boolean removeCoOwner(UUID playerUUID) {
+        return coOwners.remove(playerUUID);
+    }
+    
+    public boolean isCoOwner(UUID playerUUID) {
+        return coOwners.contains(playerUUID);
+    }
+    
+    public boolean canBuild(UUID playerUUID) {
+        return playerUUID.equals(ownerUUID) || isCoOwner(playerUUID);
+    }
+    
+    public Set<UUID> getCoOwners() {
+        return new HashSet<>(coOwners);
+    }
+    
+    public int getCoOwnerCount() {
+        return coOwners.size();
+    }
 
     @Override
     public String toString() {
@@ -93,7 +125,8 @@ public class Plot {
             return String.format("§6Plot [§eID: %s§6, Status: §aAvailable§6, Price: §a$%.2f§6, Coords: (%d,%d-%d,%d)§6]", 
                 plotId, price, x1, z1, x2, z2);
         }
-        return String.format("§6Plot [§eID: %s§6, Owner: %s§6, Price: §a$%.2f§6, Coords: (%d,%d-%d,%d)§6]", 
-            plotId, ownerUUID, price, x1, z1, x2, z2);
+        String coOwnerInfo = coOwners.isEmpty() ? "" : String.format(" §6+ §a%d Co-Owners", coOwners.size());
+        return String.format("§6Plot [§eID: %s§6, Owner: %s§6, Price: §a$%.2f§6, Coords: (%d,%d-%d,%d)%s§6]", 
+            plotId, ownerUUID, price, x1, z1, x2, z2, coOwnerInfo);
     }
 }

@@ -28,6 +28,14 @@ commands:
     description: Achievement commands
     usage: /ach [progress]
     aliases: [achievements]
+  guild:
+    description: Guild management commands
+    usage: /guild <create|join|leave|info|members>
+    aliases: [g]
+  trade:
+    description: Trading commands
+    usage: /trade <start|offer|accept|cancel|status>
+    aliases: [exchange]
 
 permissions:
   citybuild.plot.buy:
@@ -47,4 +55,10 @@ permissions:
     default: true
   citybuild.achievements:
     description: View achievements
+    default: true
+  citybuild.guild:
+    description: Guild commands
+    default: true
+  citybuild.trade:
+    description: Trading commands
     default: true
