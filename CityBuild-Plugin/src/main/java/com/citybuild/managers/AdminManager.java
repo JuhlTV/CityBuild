@@ -193,7 +193,8 @@ public class AdminManager {
             String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
             data.actionLog.add("[" + timestamp + "] " + action);
             if (data.actionLog.size() > 100) {
-            data.actionLog.remove(0); // Keep last 100 actions
+                data.actionLog.remove(0); // Keep last 100 actions
+            }
         }
     }
 
