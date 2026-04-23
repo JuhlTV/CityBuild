@@ -1,6 +1,8 @@
 package com.citybuild.commands;
 
 import com.citybuild.CityBuildPlugin;
+import com.citybuild.core.commands.CommandRegistry;
+import com.citybuild.core.commands.handlers.*;
 import com.citybuild.managers.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,6 +23,7 @@ public class CityBuildCommand implements CommandExecutor {
     private final EconomyManager economy;
     private final PlotManager plots;
     private final EconomyCommandHandler economyHandler;
+    private final CommandRegistry commandRegistry;
     private final java.util.Map<String, Long> teleportCooldowns = new java.util.HashMap<>();
     private final long TELEPORT_COOLDOWN_MS = 3000; // 3 seconds
 
@@ -29,6 +32,49 @@ public class CityBuildCommand implements CommandExecutor {
         this.economy = plugin.getEconomyManager();
         this.plots = plugin.getPlotManager();
         this.economyHandler = new EconomyCommandHandler(plugin);
+        this.commandRegistry = initializeCommandRegistry();
+    }
+
+    /**
+     * Initialize the command registry with all available commands
+     * This replaces the large switch statement with O(1) HashMap lookup
+     */
+    private CommandRegistry initializeCommandRegistry() {
+        CommandRegistry registry = new CommandRegistry(plugin.getLogger());
+        
+        // Core commands
+        registry.register("menu", new MenuCommandHandler(plugin));
+        registry.register("info", new InfoCommandHandler(plugin));
+        registry.register("leaderboard", new LeaderboardCommandHandler(plugin));
+        
+        // GUI Menu commands
+        registry.register("achievements", (player, args) -> {
+            plugin.getGUIManager().openAchievementsMenu(player);
+            return true;
+        });
+        registry.register("warps", (player, args) -> {
+            plugin.getGUIManager().openWarpsMenu(player);
+            return true;
+        });
+        registry.register("quests", (player, args) -> {
+            plugin.getGUIManager().openQuestsMenu(player);
+            return true;
+        });
+        registry.register("quest", (player, args) -> {
+            plugin.getGUIManager().openQuestsMenu(player);
+            return true;
+        });
+        registry.register("enchant", (player, args) -> {
+            plugin.getGUIManager().openEnchantingMenu(player);
+            return true;
+        });
+        registry.register("trade", (player, args) -> {
+            plugin.getGUIManager().openTradingMenu(player);
+            return true;
+        });
+        
+        plugin.getLogger().info("✅ Command registry initialized with " + registry.getAll().size() + " commands");
+        return registry;
     }
 
     @Override
@@ -44,13 +90,16 @@ public class CityBuildCommand implements CommandExecutor {
             return true;
         }
 
-        switch (args[0].toLowerCase()) {
-            case "menu":
-                plugin.getGUIManager().openMainMenu(player);
-                return true;
-            case "achievements":
-                plugin.getGUIManager().openAchievementsMenu(player);
-                return true;
+        // Use command registry for O(1) lookup (vs O(n) switch statement)
+        String subCommand = args[0].toLowerCase();
+        
+        // Try registry first (fast path)
+        if (commandRegistry.execute(player, subCommand, args)) {
+            return true;
+        }
+        
+        // Fallback to old handler methods (for backward compatibility during migration)
+        switch (subCommand) {
             case "clan":
                 return handleClan(player, args);
             case "warp":
@@ -59,19 +108,6 @@ public class CityBuildCommand implements CommandExecutor {
                 return handleSetWarp(player, args);
             case "delwarp":
                 return handleDelWarp(player, args);
-            case "warps":
-                plugin.getGUIManager().openWarpsMenu(player);
-                return true;
-            case "quest":
-            case "quests":
-                plugin.getGUIManager().openQuestsMenu(player);
-                return true;
-            case "enchant":
-                plugin.getGUIManager().openEnchantingMenu(player);
-                return true;
-            case "trade":
-                plugin.getGUIManager().openTradingMenu(player);
-                return true;
             case "buy":
                 return handleBuy(player);
             case "sell":
@@ -80,10 +116,6 @@ public class CityBuildCommand implements CommandExecutor {
                 return handleBalance(player);
             case "economy":
                 return economyHandler.handleEconomyCommand(player, args);
-            case "info":
-                return handleInfo(player);
-            case "leaderboard":
-                return handleLeaderboard(player);
             case "tpplot":
                 return handleTeleportPlot(player);
             case "tpfarm":
