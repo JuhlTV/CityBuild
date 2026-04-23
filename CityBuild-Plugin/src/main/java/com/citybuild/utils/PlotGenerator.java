@@ -1,6 +1,9 @@
 package com.citybuild.utils;
 
 import com.citybuild.model.PlotData;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Directional;
@@ -119,7 +122,7 @@ public class PlotGenerator {
         
         if (signBlock.getState() instanceof Sign) {
             Sign sign = (Sign) signBlock.getState();
-            sign.line(0, Component.text("Plot #" + plot.getPlotId(), NamedTextColor.AQUA, net.kyori.adventure.text.format.TextDecoration.BOLD));
+            sign.line(0, Component.text("Plot #" + plot.getPlotId(), NamedTextColor.AQUA, TextDecoration.BOLD));
             sign.line(1, Component.text("Owner: " + (plot.getOwnerUuid().length() > 8 ? plot.getOwnerUuid().substring(0, 8) + "..." : plot.getOwnerUuid()), NamedTextColor.GREEN));
             sign.line(2, Component.text(plot.getSizeX() + "x" + plot.getSizeZ() + " blocks", NamedTextColor.YELLOW));
             sign.line(3, Component.text("Area: " + plot.getArea() + "m²", NamedTextColor.GRAY));
