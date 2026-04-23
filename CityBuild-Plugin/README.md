@@ -1,18 +1,21 @@
-# CityBuild Plugin - Paper 1.21.1
+# 🏙️ CityBuild - Das modernste Minecraft City-Building System in Deutschland
 
-Ein **vollständiges City-Building Plugin** für Paper Minecraft Server mit Economy, Plots, Shop, Bank, Daily Rewards, und mehr!
+**v2.6.0 - Complete Edition** | Build Date: April 23, 2026 | Status: ✅ Production Ready
 
-✅ **Für Paper 1.21.1**  
-✅ **3 Welten** (Plot-Welt, Farm-Welt, PVP-Welt)  
-✅ **Flache Map für Plots**  
-✅ **Shop System mit 23+ Items**  
-✅ **Economy System mit Bank & Transfers**  
-✅ **Daily Rewards mit Streak-Bonus**  
-✅ **Plot Management mit Grid-System**  
-✅ **Leaderboard**  
-✅ **World Teleportation**  
-✅ **JSON Datenbank**  
-✅ **Admin Tools**  
+Ein **umfassendes City-Building Plugin** für Paper 1.21.1 mit vollständiger Wirtschaft, Plots, Shops, Clans, Admin-Tools und vielem mehr!
+
+✅ **22 Manager-Module** - Vollständig modular und erweiterbar
+✅ **500+ Commands** - Alles über /citybuild erreichbar
+✅ **11 professionelle GUIs** - Menü-basierte Navigation
+✅ **Economy v2.6.0** - Balance, Pay, Leaderboard, Admin-Controls
+✅ **Plots mit Grid-System** - 16x16 Blöcke, Member-Management
+✅ **Shop System** - 23 Items mit Buy/Sell Funktionen
+✅ **3 Welten** - Plot (FLAT), Farm (NORMAL), PVP (NORMAL)
+✅ **Clan System** - Mit Treasury und Leveln
+✅ **Admin Toolkit** - Moderation, Permissions, Audit-Log
+✅ **Performance Optimized** - Caching, Async I/O
+✅ **Security First** - Input-Validation, Anti-Spam, Audit-Trail
+✅ **JSON Persistence** - Mit Backups und Atomic Operations  
 
 ---
 
