@@ -1,0 +1,36 @@
+name: CityBuild
+version: ${project.version}
+description: Complete City Building System for Minecraft
+author: CityBuild Team
+main: com.citybuild.CityBuildPlugin
+
+commands:
+  plot:
+    description: Plot management commands
+    usage: /plot <buy|sell|info|list>
+  economy:
+    description: Economy commands
+    usage: /economy <balance|pay|check>
+  terrain:
+    description: Terrain generation commands
+    usage: /terrain <generate|settings>
+  admin:
+    description: Admin commands
+    usage: /admin <reload|reset|stats>
+  shop:
+    description: Shop commands
+    usage: /shop <create|remove|info>
+
+permissions:
+  citybuild.plot.buy:
+    description: Allow players to buy plots
+    default: true
+  citybuild.plot.sell:
+    description: Allow players to sell plots
+    default: true
+  citybuild.economy.pay:
+    description: Allow players to send money
+    default: true
+  citybuild.admin:
+    description: Admin permissions
+    default: op
