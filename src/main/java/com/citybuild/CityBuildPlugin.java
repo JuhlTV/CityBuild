@@ -16,6 +16,9 @@ import com.citybuild.features.cosmetics.CosmeticsManager;
 import com.citybuild.features.quests.QuestManager;
 import com.citybuild.features.clans.ClanManager;
 import com.citybuild.features.events.AdvancementEventManager;
+import com.citybuild.features.dungeons.DungeonManager;
+import com.citybuild.features.treasures.TreasureManager;
+import com.citybuild.features.npcs.NPCManager;
 import com.citybuild.protection.WorldGuardAdapter;
 import com.citybuild.storage.GuildPersistence;
 import com.citybuild.storage.TradePersistence;
@@ -39,6 +42,9 @@ import com.citybuild.commands.CosmeticsCommand;
 import com.citybuild.commands.QuestCommand;
 import com.citybuild.commands.ClanCommand;
 import com.citybuild.commands.EventCommand;
+import com.citybuild.commands.DungeonCommand;
+import com.citybuild.commands.TreasureCommand;
+import com.citybuild.commands.NPCCommand;
 import java.util.Objects;
 
 /**
@@ -64,6 +70,9 @@ public class CityBuildPlugin extends JavaPlugin {
     private QuestManager questManager;
     private ClanManager clanManager;
     private AdvancementEventManager eventManager;
+    private DungeonManager dungeonManager;
+    private TreasureManager treasureManager;
+    private NPCManager npcManager;
     private WorldGuardAdapter worldGuardAdapter;
     private GuildPersistence guildPersistence;
     private TradePersistence tradePersistence;
@@ -140,6 +149,9 @@ public class CityBuildPlugin extends JavaPlugin {
         this.questManager = new QuestManager(this, economyManager, achievementManager);
         this.clanManager = new ClanManager(this);
         this.eventManager = new AdvancementEventManager(this);
+        this.dungeonManager = new DungeonManager(this);
+        this.treasureManager = new TreasureManager(this);
+        this.npcManager = new NPCManager(this);
         this.worldGuardAdapter = new WorldGuardAdapter(this);
         this.guildPersistence = new GuildPersistence(this);
         this.tradePersistence = new TradePersistence(this);
@@ -178,6 +190,12 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new ClanCommand(clanManager));
         Objects.requireNonNull(getCommand("event"), "event command not found in plugin.yml")
             .setExecutor(new EventCommand(eventManager));
+        Objects.requireNonNull(getCommand("dungeon"), "dungeon command not found in plugin.yml")
+            .setExecutor(new DungeonCommand(dungeonManager));
+        Objects.requireNonNull(getCommand("treasure"), "treasure command not found in plugin.yml")
+            .setExecutor(new TreasureCommand(treasureManager));
+        Objects.requireNonNull(getCommand("npc"), "npc command not found in plugin.yml")
+            .setExecutor(new NPCCommand(npcManager));
         
         getLogger().info("✓ Commands registered");
     }
@@ -259,6 +277,18 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public AdvancementEventManager getEventManager() {
         return eventManager;
+    }
+    
+    public DungeonManager getDungeonManager() {
+        return dungeonManager;
+    }
+    
+    public TreasureManager getTreasureManager() {
+        return treasureManager;
+    }
+    
+    public NPCManager getNPCManager() {
+        return npcManager;
     }
     
     public WorldGuardAdapter getWorldGuardAdapter() {

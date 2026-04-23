@@ -60,6 +60,18 @@ commands:
     description: Advancement events
     usage: /event <active|view|info|stats|leaderboard>
     aliases: [events, advancement]
+  dungeon:
+    description: Dungeon exploration
+    usage: /dungeon <list|enter|leave|info|stats>
+    aliases: [d, dungeons]
+  treasure:
+    description: Treasure hunting
+    usage: /treasure <search|nearest|stats|discoveries>
+    aliases: [t, treasures]
+  npc:
+    description: NPC traders
+    usage: /npc <list|info|find|stats>
+    aliases: [trader, traders]
 
 permissions:
   citybuild.plot.buy:
@@ -103,4 +115,13 @@ permissions:
     default: true
   citybuild.event:
     description: Advancement events
+    default: true
+  citybuild.dungeon:
+    description: Dungeon system
+    default: true
+  citybuild.treasure:
+    description: Treasure hunting
+    default: true
+  citybuild.npc:
+    description: NPC traders
     default: true
