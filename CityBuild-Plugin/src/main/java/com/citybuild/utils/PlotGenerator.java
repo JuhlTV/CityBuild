@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Generates and manages plot terrain, borders, and structures
