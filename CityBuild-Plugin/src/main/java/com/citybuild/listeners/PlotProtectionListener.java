@@ -2,6 +2,7 @@ package com.citybuild.listeners;
 
 import com.citybuild.CityBuildPlugin;
 import com.citybuild.managers.PlotManager;
+import com.citybuild.model.PlotData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -64,23 +65,23 @@ public class PlotProtectionListener implements Listener {
      */
     private boolean isPlayerAllowedAtLocation(Player player, Location loc) {
         String uuid = player.getUniqueId().toString();
+        int x = loc.getBlockX();
+        int z = loc.getBlockZ();
 
-        // Get plot at location (calculate which plot ID based on coordinates)
-        int plotId = getPlotIdAtLocation(loc);
-        
-        if (plotId == -1) {
-            // Outside all plots - allow building
-            return true;
+        // Check all player plots to see if location is within one
+        java.util.List<PlotData> playerPlots = plotManager.getPlayerPlotData(uuid);
+        for (PlotData plot : playerPlots) {
+            if (plot.isLocationInPlot(x, z)) {
+                return true; // Player owns this plot
+            }
         }
 
-        // Check if player owns this plot
-        if (plotManager.isPlotOwner(uuid, plotId)) {
-            return true;
-        }
-
-        // Check if player is a member of this plot
-        if (plotManager.isPlotMember(uuid, plotId)) {
-            return true;
+        // Check if player is member of any plot at this location
+        java.util.List<PlotData> allPlots = getAllPlotsAtLocation(x, z);
+        for (PlotData plot : allPlots) {
+            if (plot.isMember(uuid)) {
+                return true; // Player is member of this plot
+            }
         }
 
         // Player doesn't own or is not member - block action
@@ -88,32 +89,34 @@ public class PlotProtectionListener implements Listener {
     }
 
     /**
-     * Calculate plot ID from location coordinates
+     * Get all plots that could contain a location
      */
-    private int getPlotIdAtLocation(Location loc) {
-        int x = loc.getBlockX();
-        int z = loc.getBlockZ();
-
+    private java.util.List<PlotData> getAllPlotsAtLocation(int x, int z) {
+        java.util.List<PlotData> result = new java.util.ArrayList<>();
+        
+        // Grid calculation (same as in PlotData.isLocationInPlot)
         final int PLOT_SIZE = 16;
         final int PLOT_SPACING = 2;
         final int PLOTS_PER_ROW = 10;
         final int plotDistance = PLOT_SIZE + PLOT_SPACING;
 
-        // Calculate which grid cell this block is in
+        // Calculate grid cell
         int gridX = x / plotDistance;
         int gridZ = z / plotDistance;
 
-        // Check if we're in the spacing between plots (not allowed)
-        int localX = x % plotDistance;
-        int localZ = z % plotDistance;
-
-        if (localX >= PLOT_SIZE || localZ >= PLOT_SIZE) {
-            // In spacing area
-            return -1;
+        // Check surrounding grid cells (in case of boundary)
+        for (int gx = gridX - 1; gx <= gridX + 1; gx++) {
+            for (int gz = gridZ - 1; gz <= gridZ + 1; gz++) {
+                if (gx < 0 || gz < 0) continue;
+                
+                int plotId = gz * PLOTS_PER_ROW + gx + 1;
+                PlotData plot = plotManager.getPlot(plotId);
+                if (plot != null && plot.isLocationInBoundary(x, z, 1)) {
+                    result.add(plot);
+                }
+            }
         }
 
-        // Calculate plot ID (1-indexed)
-        int plotId = gridZ * PLOTS_PER_ROW + gridX + 1;
-        return plotId;
+        return result;
     }
 }
