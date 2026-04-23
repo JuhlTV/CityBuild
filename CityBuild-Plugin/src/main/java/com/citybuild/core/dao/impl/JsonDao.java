@@ -18,14 +18,12 @@ public class JsonDao<T> implements IDao<T, String> {
     private final String dataFile;
     private final AsyncExecutor asyncExecutor;
     private final Logger logger;
-    private final DataPersistenceUtils persistenceUtils;
     
     public JsonDao(Class<T> entityClass, String dataFile, AsyncExecutor asyncExecutor, Logger logger) {
         this.entityClass = entityClass;
         this.dataFile = dataFile;
         this.asyncExecutor = asyncExecutor;
         this.logger = logger;
-        this.persistenceUtils = new DataPersistenceUtils(logger);
     }
     
     @Override

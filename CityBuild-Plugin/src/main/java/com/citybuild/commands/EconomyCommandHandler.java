@@ -163,9 +163,9 @@ public class EconomyCommandHandler {
         economy.addBalance(target.getUniqueId().toString(), amount);
         
         // Transaktionen loggen
-        transactions.logTransaction(player.getUniqueId(), TransactionManager.TransactionType.TRANSFER, amount, 
+        transactions.logTransaction(player.getUniqueId().toString(), TransactionManager.TransactionType.TRANSFER, amount, 
                 "Transfer zu " + target.getName(), target.getUniqueId().toString());
-        transactions.logTransaction(target.getUniqueId(), TransactionManager.TransactionType.TRANSFER, amount, 
+        transactions.logTransaction(target.getUniqueId().toString(), TransactionManager.TransactionType.TRANSFER, amount, 
                 "Transfer von " + player.getName(), player.getUniqueId().toString());
 
         // Bestätigung
@@ -221,7 +221,7 @@ public class EconomyCommandHandler {
         }
 
         economy.addBalance(target.getUniqueId().toString(), amount);
-        transactions.logTransaction(target.getUniqueId(), TransactionManager.TransactionType.ADMIN_ADJUSTMENT, amount,
+        transactions.logTransaction(target.getUniqueId().toString(), TransactionManager.TransactionType.ADMIN_ADJUSTMENT, amount,
                 "Admin hinzugefügt von " + player.getName(), player.getUniqueId().toString());
 
         player.sendMessage(Component.empty()
@@ -274,7 +274,7 @@ public class EconomyCommandHandler {
         }
 
         economy.removeBalance(target.getUniqueId().toString(), amount);
-        transactions.logTransaction(target.getUniqueId(), TransactionManager.TransactionType.ADMIN_ADJUSTMENT, -amount,
+        transactions.logTransaction(target.getUniqueId().toString(), TransactionManager.TransactionType.ADMIN_ADJUSTMENT, -amount,
                 "Admin entfernt von " + player.getName(), player.getUniqueId().toString());
 
         player.sendMessage(Component.empty()
@@ -328,7 +328,7 @@ public class EconomyCommandHandler {
 
         long oldBalance = economy.getBalance(target);
         economy.setBalance(target.getUniqueId().toString(), amount);
-        transactions.logTransaction(target.getUniqueId(), TransactionManager.TransactionType.ADMIN_ADJUSTMENT, amount - oldBalance,
+        transactions.logTransaction(target.getUniqueId().toString(), TransactionManager.TransactionType.ADMIN_ADJUSTMENT, amount - oldBalance,
                 "Admin setzte Balance auf $" + amount, player.getUniqueId().toString());
 
         player.sendMessage(Component.empty()
@@ -390,9 +390,9 @@ public class EconomyCommandHandler {
 
         economy.removeBalance(from.getUniqueId().toString(), amount);
         economy.addBalance(to.getUniqueId().toString(), amount);
-        transactions.logTransaction(from.getUniqueId(), TransactionManager.TransactionType.TRANSFER, -amount,
+        transactions.logTransaction(from.getUniqueId().toString(), TransactionManager.TransactionType.TRANSFER, -amount,
                 "Admin Transfer zu " + to.getName(), player.getUniqueId().toString());
-        transactions.logTransaction(to.getUniqueId(), TransactionManager.TransactionType.TRANSFER, amount,
+        transactions.logTransaction(to.getUniqueId().toString(), TransactionManager.TransactionType.TRANSFER, amount,
                 "Admin Transfer von " + from.getName(), player.getUniqueId().toString());
 
         player.sendMessage(Component.empty()
