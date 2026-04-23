@@ -14,6 +14,8 @@ import java.time.Duration;
  */
 public class MessageManager {
 
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
+
     public static class Message {
         public static final String SUCCESS = "§a✓ ";
         public static final String ERROR = "§c❌ ";
@@ -129,6 +131,6 @@ public class MessageManager {
     }
 
     private static Component legacy(String text) {
-        return LegacyComponentSerializer.legacySection().deserialize(text);
+        return LEGACY.deserialize(text);
     }
 }

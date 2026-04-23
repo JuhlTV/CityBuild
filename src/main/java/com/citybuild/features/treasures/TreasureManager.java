@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Manages treasure hunting system
@@ -141,7 +142,7 @@ public class TreasureManager {
         World world = Bukkit.getWorlds().get(0);
         if (world == null) return;
 
-        Random random = new Random();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
         for (int i = 0; i < count; i++) {
             int x = random.nextInt(1000) - 500;
             int z = random.nextInt(1000) - 500;
@@ -161,9 +162,10 @@ public class TreasureManager {
      */
     public Map<String, Object> getStatistics() {
         Map<String, Object> stats = new HashMap<>();
+        int hidden = getHiddenTreasures().size();
         stats.put("total_treasures", treasures.size());
-        stats.put("hidden_treasures", getHiddenTreasures().size());
-        stats.put("discovered_treasures", treasures.size() - getHiddenTreasures().size());
+        stats.put("hidden_treasures", hidden);
+        stats.put("discovered_treasures", treasures.size() - hidden);
         stats.put("total_value", treasures.values().stream()
             .mapToDouble(t -> t.getRarity().getReward())
             .sum());

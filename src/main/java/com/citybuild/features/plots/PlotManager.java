@@ -3,6 +3,7 @@ package com.citybuild.features.plots;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 import com.citybuild.storage.DataManager;
 import com.citybuild.storage.DataManager.BlockData;
 import com.citybuild.storage.DataManager.PlotData;
@@ -20,6 +21,8 @@ public class PlotManager {
     private final Map<String, Set<String>> mergedPlots; // main plot ID -> merged plot IDs
     private final Queue<String> availablePlots; // Queue of unowned plots
     private final Map<String, List<BlockData>> plotBlocks; // plot ID -> list of blocks built
+    private final Map<String, BukkitTask> pendingPlotSaveTasks; // plot ID -> scheduled save task
+    private boolean usesDefaultGridLayout;
     
     private static final int TOTAL_PLOTS = 100;
     private static final double PLOT_BASE_PRICE = 1000.0;
@@ -28,6 +31,8 @@ public class PlotManager {
     private static final int GRID_SIZE = 10;
     private static final int PLOT_SIZE = 100;
     private static final int PLOT_Y = -60;
+    private static final int GRID_MAX = GRID_SIZE * PLOT_SIZE;
+    private static final long BLOCK_SAVE_DEBOUNCE_TICKS = 40L; // 2s on a 20 TPS server
 
     public PlotManager(Plugin plugin, DataManager dataManager) {
         this.plugin = plugin;
@@ -37,6 +42,8 @@ public class PlotManager {
         this.mergedPlots = new HashMap<>();
         this.availablePlots = new LinkedList<>();
         this.plotBlocks = new HashMap<>();
+        this.pendingPlotSaveTasks = new HashMap<>();
+        this.usesDefaultGridLayout = true;
         loadAllData();
     }
     
@@ -162,9 +169,8 @@ public class PlotManager {
         
         List<BlockData> blocks = plotBlocks.computeIfAbsent(plotId, k -> new ArrayList<>());
         blocks.add(new BlockData(x, y, z, material, ""));
-        
-        // Save immediately
-        savePlot(plotId);
+
+        schedulePlotSaveDebounced(plotId);
     }
     
     /**
@@ -173,8 +179,10 @@ public class PlotManager {
     public void removeBlockFromPlot(String plotId, int x, int y, int z) {
         List<BlockData> blocks = plotBlocks.get(plotId);
         if (blocks != null) {
-            blocks.removeIf(b -> b.x == x && b.y == y && b.z == z);
-            savePlot(plotId);
+            boolean removed = blocks.removeIf(b -> b.x == x && b.y == y && b.z == z);
+            if (removed) {
+                schedulePlotSaveDebounced(plotId);
+            }
         }
     }
     
@@ -324,6 +332,38 @@ public class PlotManager {
     }
 
     /**
+     * Find plot by world X/Z coordinates.
+     * Uses a fast grid-based lookup for default 10x10 plots and falls back to scan for custom layouts.
+     */
+    public Plot findPlotAt(int x, int z) {
+        // If we know layout is default, we can reject out-of-range coords instantly.
+        if (usesDefaultGridLayout && (x < 0 || z < 0 || x >= GRID_MAX || z >= GRID_MAX)) {
+            return null;
+        }
+
+        // Fast path: default generated grid starts at 0/0 and uses fixed plot sizes.
+        if (x >= 0 && z >= 0) {
+            int gridX = x / PLOT_SIZE;
+            int gridZ = z / PLOT_SIZE;
+            if (gridX >= 0 && gridX < GRID_SIZE && gridZ >= 0 && gridZ < GRID_SIZE) {
+                int plotNumber = (gridX * GRID_SIZE) + gridZ + 1;
+                Plot direct = plots.get("plot_" + plotNumber);
+                if (direct != null && direct.isInPlot(x, PLOT_Y, z)) {
+                    return direct;
+                }
+            }
+        }
+
+        // Fallback for non-standard/custom-loaded plot layouts.
+        for (Plot plot : plots.values()) {
+            if (plot != null && plot.isInPlot(x, PLOT_Y, z)) {
+                return plot;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Gets total plots (owned + available)
      */
     public int getTotalPlots() {
@@ -380,13 +420,35 @@ public class PlotManager {
     }
 
     public void saveAllData() {
+        // Flush pending debounced saves so onDisable writes the latest state once.
+        for (BukkitTask task : pendingPlotSaveTasks.values()) {
+            task.cancel();
+        }
+        pendingPlotSaveTasks.clear();
+
         for (String plotId : plots.keySet()) {
             savePlot(plotId);
         }
         plugin.getLogger().info("✓ Saved " + plots.size() + " plots to JSON");
     }
 
+    private void schedulePlotSaveDebounced(String plotId) {
+        BukkitTask existing = pendingPlotSaveTasks.remove(plotId);
+        if (existing != null) {
+            existing.cancel();
+        }
+
+        BukkitTask scheduled = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            pendingPlotSaveTasks.remove(plotId);
+            savePlot(plotId);
+        }, BLOCK_SAVE_DEBOUNCE_TICKS);
+
+        pendingPlotSaveTasks.put(plotId, scheduled);
+    }
+
     public void loadAllData() {
+        usesDefaultGridLayout = true;
+
         // Try to load from JSON first
         List<PlotData> savedPlots = dataManager.loadAllPlots();
         
@@ -398,6 +460,7 @@ public class PlotManager {
                     data.price, data.x1, data.z1, data.x2, data.z2);
                 plots.put(data.plotId, plot);
                 plotBlocks.put(data.plotId, data.constructedBlocks);
+                usesDefaultGridLayout = usesDefaultGridLayout && isDefaultGridPlot(data.plotId, plot);
                 
                 // Update player plots and available queue
                 if (data.ownerUUID != null) {
@@ -409,6 +472,38 @@ public class PlotManager {
         } else {
             // Initialize default plots if no saved data
             initializeDefaultPlots();
+            usesDefaultGridLayout = true;
         }
+    }
+
+    private boolean isDefaultGridPlot(String plotId, Plot plot) {
+        if (plotId == null || !plotId.startsWith("plot_")) {
+            return false;
+        }
+
+        int plotNumber;
+        try {
+            plotNumber = Integer.parseInt(plotId.substring(5));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        if (plotNumber < 1 || plotNumber > TOTAL_PLOTS) {
+            return false;
+        }
+
+        int zeroBased = plotNumber - 1;
+        int gridX = zeroBased / GRID_SIZE;
+        int gridZ = zeroBased % GRID_SIZE;
+
+        int expectedX1 = gridX * PLOT_SIZE;
+        int expectedZ1 = gridZ * PLOT_SIZE;
+        int expectedX2 = expectedX1 + PLOT_SIZE - 1;
+        int expectedZ2 = expectedZ1 + PLOT_SIZE - 1;
+
+        return plot.getX1() == expectedX1
+            && plot.getZ1() == expectedZ1
+            && plot.getX2() == expectedX2
+            && plot.getZ2() == expectedZ2;
     }
 }

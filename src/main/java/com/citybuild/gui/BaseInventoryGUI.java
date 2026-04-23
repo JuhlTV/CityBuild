@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
  */
 public abstract class BaseInventoryGUI implements InventoryHolder {
 
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
+
     protected Inventory inventory;
     protected Player player;
     protected String title;
@@ -121,7 +123,7 @@ public abstract class BaseInventoryGUI implements InventoryHolder {
     }
 
     private Component legacy(String text) {
-        return LegacyComponentSerializer.legacySection().deserialize(text);
+        return LEGACY.deserialize(text);
     }
 
     private java.util.List<Component> toComponents(java.util.List<String> lines) {

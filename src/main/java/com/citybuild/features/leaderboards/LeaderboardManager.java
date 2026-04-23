@@ -37,6 +37,7 @@ public class LeaderboardManager {
     private final Map<LeaderboardType, Map<UUID, Double>> leaderboards = new HashMap<>();
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 60 * 1000; // 1 minute
+    private static final String LEADERBOARD_SEPARATOR = "§7" + "─".repeat(40);
     
     public LeaderboardManager(EconomyManager economyManager, PlotManager plotManager, 
                              AchievementManager achievementManager) {
@@ -110,10 +111,10 @@ public class LeaderboardManager {
     public String[] getFormattedLeaderboard(LeaderboardType type) {
         updateLeaderboards();
         Map<UUID, Double> lb = leaderboards.get(type);
-        List<String> lines = new ArrayList<>();
+        List<String> lines = new ArrayList<>(Math.max(3, lb.size() + 2));
         
         lines.add("§6§l" + type.getDisplayName());
-        lines.add("§7" + "─".repeat(40));
+        lines.add(LEADERBOARD_SEPARATOR);
         
         int rank = 1;
         for (Map.Entry<UUID, Double> entry : lb.entrySet()) {
@@ -190,7 +191,6 @@ public class LeaderboardManager {
      * Broadcast top players to all online players
      */
     public void broadcastLeaderboardUpdate(LeaderboardType type) {
-        updateLeaderboards();
         String[] formatted = getFormattedLeaderboard(type);
         
         for (Player player : Bukkit.getOnlinePlayers()) {
