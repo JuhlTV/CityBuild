@@ -35,11 +35,10 @@ public class LeaderboardGUI extends BaseInventoryGUI {
         inventory.setItem(16, createCustomItem(Material.PURPLE_CONCRETE, "§d🏆 ACHIEVEMENTS", "§eTop achievements"));
 
         // Display current leaderboard (rows 2-4)
-        String leaderboard = (String) leaderboardManager.getFormattedLeaderboard(currentType);
-        if (leaderboard == null || leaderboard.isEmpty()) {
-            leaderboard = "§7No entries yet.";
+        String[] lines = leaderboardManager.getFormattedLeaderboard(currentType);
+        if (lines == null || lines.length == 0) {
+            lines = new String[] { "§7No entries yet." };
         }
-        String[] lines = leaderboard.split("\n");
 
         int slot = 19;
         for (int i = 0; i < Math.min(lines.length, 25); i++) {
