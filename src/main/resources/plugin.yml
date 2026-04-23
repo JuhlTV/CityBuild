@@ -76,6 +76,18 @@ commands:
     description: Configuration management (admin only)
     usage: /config <view|reload|summary|set>
     aliases: [cfg, settings]
+  biome:
+    description: Custom biome generation (admin only)
+    usage: /biome <list|generate|info>
+    aliases: [b, biomes]
+  tp:
+    description: Teleportation hubs and warping
+    usage: /tp <hubs|list|go|stats>
+    aliases: [warp, teleport]
+  arena:
+    description: Mob arena battles
+    usage: /arena <list|enter|leave|stats>
+    aliases: [battle, combat]
 
 permissions:
   citybuild.plot.buy:
@@ -135,3 +147,12 @@ permissions:
   citybuild.admin:
     description: Admin commands
     default: op
+  citybuild.biome:
+    description: Biome generation
+    default: op
+  citybuild.teleport:
+    description: Teleportation system
+    default: true
+  citybuild.arena:
+    description: Mob arenas
+    default: true

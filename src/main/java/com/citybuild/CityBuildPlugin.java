@@ -47,6 +47,16 @@ import com.citybuild.commands.DungeonCommand;
 import com.citybuild.commands.TreasureCommand;
 import com.citybuild.commands.NPCCommand;
 import com.citybuild.commands.ConfigCommand;
+import com.citybuild.commands.BiomeCommand;
+import com.citybuild.commands.TeleportCommand;
+import com.citybuild.commands.ArenaCommand;
+import com.citybuild.features.biomes.BiomeGenerator;
+import com.citybuild.features.teleportation.TeleportationHub;
+import com.citybuild.features.arenas.MobArena;
+import com.citybuild.features.leaderboard.LeaderboardPersistence;
+import com.citybuild.util.SoundEffects;
+import com.citybuild.util.ParticleEffects;
+import com.citybuild.util.MessageManager;
 import java.util.Objects;
 
 /**
@@ -77,6 +87,9 @@ public class CityBuildPlugin extends JavaPlugin {
     private NPCManager npcManager;
     private ConfigManager configManager;
     private WorldGuardAdapter worldGuardAdapter;
+    private BiomeGenerator biomeGenerator;
+    private TeleportationHub teleportationHub;
+    private LeaderboardPersistence leaderboardPersistence;
     private GuildPersistence guildPersistence;
     private TradePersistence tradePersistence;
     private AuctionPersistence auctionPersistence;
@@ -157,6 +170,9 @@ public class CityBuildPlugin extends JavaPlugin {
         this.npcManager = new NPCManager(this);
         this.configManager = new ConfigManager(this);
         this.worldGuardAdapter = new WorldGuardAdapter(this);
+        this.biomeGenerator = new BiomeGenerator(this);
+        this.teleportationHub = new TeleportationHub(this);
+        this.leaderboardPersistence = new LeaderboardPersistence(this);
         this.guildPersistence = new GuildPersistence(this);
         this.tradePersistence = new TradePersistence(this);
         this.auctionPersistence = new AuctionPersistence(this);
@@ -202,6 +218,12 @@ public class CityBuildPlugin extends JavaPlugin {
             .setExecutor(new NPCCommand(npcManager));
         Objects.requireNonNull(getCommand("config"), "config command not found in plugin.yml")
             .setExecutor(new ConfigCommand(configManager));
+        Objects.requireNonNull(getCommand("biome"), "biome command not found in plugin.yml")
+            .setExecutor(new BiomeCommand(biomeGenerator));
+        Objects.requireNonNull(getCommand("tp"), "tp command not found in plugin.yml")
+            .setExecutor(new TeleportCommand(teleportationHub));
+        Objects.requireNonNull(getCommand("arena"), "arena command not found in plugin.yml")
+            .setExecutor(new ArenaCommand());
         
         getLogger().info("✓ Commands registered");
     }
@@ -319,6 +341,18 @@ public class CityBuildPlugin extends JavaPlugin {
     
     public PlayerFarmDataManager getFarmDataManager() {
         return farmDataManager;
+    }
+    
+    public BiomeGenerator getBiomeGenerator() {
+        return biomeGenerator;
+    }
+    
+    public TeleportationHub getTeleportationHub() {
+        return teleportationHub;
+    }
+    
+    public LeaderboardPersistence getLeaderboardPersistence() {
+        return leaderboardPersistence;
     }
     
     public static CityBuildPlugin getInstance() {
