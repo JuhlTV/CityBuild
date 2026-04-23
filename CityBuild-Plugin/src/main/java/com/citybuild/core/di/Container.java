@@ -73,7 +73,7 @@ public class Container {
         // Try to create directly (might be concrete class)
         try {
             return create(type);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.severe("Failed to create instance of " + type.getSimpleName() + ": " + e.getMessage());
             throw new RuntimeException("Cannot resolve dependency: " + type.getName(), e);
         }
@@ -84,32 +84,36 @@ public class Container {
      * Attempts to use constructor with most parameters
      */
     @SuppressWarnings("unchecked")
-    private <T> T create(Class<T> type) throws Exception {
-        // Try to find constructor with parameters
-        var constructors = type.getDeclaredConstructors();
-        
-        if (constructors.length == 0) {
-            throw new Exception("No constructors found");
-        }
-        
-        // Use constructor with most parameters
-        var targetConstructor = constructors[0];
-        for (var constructor : constructors) {
-            if (constructor.getParameterCount() > targetConstructor.getParameterCount()) {
-                targetConstructor = constructor;
+    private <T> T create(Class<T> type) {
+        try {
+            // Try to find constructor with parameters
+            var constructors = type.getDeclaredConstructors();
+            
+            if (constructors.length == 0) {
+                throw new IllegalStateException("No constructors found for " + type.getName());
             }
+            
+            // Use constructor with most parameters
+            var targetConstructor = constructors[0];
+            for (var constructor : constructors) {
+                if (constructor.getParameterCount() > targetConstructor.getParameterCount()) {
+                    targetConstructor = constructor;
+                }
+            }
+            
+            // Get constructor parameters and resolve them
+            Class<?>[] paramTypes = targetConstructor.getParameterTypes();
+            Object[] params = new Object[paramTypes.length];
+            
+            for (int i = 0; i < paramTypes.length; i++) {
+                params[i] = get(paramTypes[i]);
+            }
+            
+            targetConstructor.setAccessible(true);
+            return (T) targetConstructor.newInstance(params);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create instance of " + type.getName(), e);
         }
-        
-        // Get constructor parameters and resolve them
-        Class<?>[] paramTypes = targetConstructor.getParameterTypes();
-        Object[] params = new Object[paramTypes.length];
-        
-        for (int i = 0; i < paramTypes.length; i++) {
-            params[i] = get(paramTypes[i]);
-        }
-        
-        targetConstructor.setAccessible(true);
-        return (T) targetConstructor.newInstance(params);
     }
     
     /**
